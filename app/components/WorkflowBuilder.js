@@ -9,8 +9,17 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
   const [steps, setSteps] = useState([]);
   const [isPlaybook, setIsPlaybook] = useState(false);
   const [playbookDescription, setPlaybookDescription] = useState('');
+  const [playbookSection, setPlaybookSection] = useState(''); // NEW STATE
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Define the same playbook sections as in HomeScreen
+  const playbookSections = [
+    { id: 'failing-to-close', title: 'Rep is failing to close deals' },
+    { id: 'deals-drop-off', title: 'Deals drop off in negotiation' },
+    { id: 'not-moving-forward', title: 'Rep is not moving deals forward in earlier stages' },
+    { id: 'acv-off-whack', title: 'ACV off whack?' }
+  ];
 
   // Load existing workflow data on component mount
   useEffect(() => {
@@ -21,65 +30,68 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
     }
   }, [initialWorkflowId]);
 
- const loadSpecificWorkflow = async (id) => {
-  try {
-    const response = await fetch(`/api/workflows/${id}`);
-    const result = await response.json();
-    
-    if (result.workflow) {
-      setWorkflowTitle(result.workflow.title);
-      setSteps(result.workflow.steps);
-      setIsPlaybook(result.workflow.isPlaybook || false);
-      setPlaybookDescription(result.workflow.playbook_description || '');
-    } else {
-      console.error('Workflow not found');
+  const loadSpecificWorkflow = async (id) => {
+    try {
+      const response = await fetch(`/api/workflows/${id}`);
+      const result = await response.json();
+      
+      if (result.workflow) {
+        setWorkflowTitle(result.workflow.title);
+        setSteps(result.workflow.steps);
+        setIsPlaybook(result.workflow.isPlaybook || false);
+        setPlaybookDescription(result.workflow.playbook_description || '');
+        setPlaybookSection(result.workflow.playbookSection || ''); // NEW FIELD
+      } else {
+        console.error('Workflow not found');
+        setDefaultWorkflow();
+      }
+    } catch (error) {
+      console.error('Error loading workflow:', error);
       setDefaultWorkflow();
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error('Error loading workflow:', error);
-    setDefaultWorkflow();
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
-const loadLatestWorkflow = async () => {
-  try {
-    const response = await fetch('/api/workflows');
-    const result = await response.json();
-    
-    if (result.workflows && result.workflows.length > 0) {
-      // Load the most recent workflow (first in the array since they're ordered by createdAt desc)
-      const latestWorkflow = result.workflows[0];
-      setWorkflowId(latestWorkflow.id);
-      setWorkflowTitle(latestWorkflow.title);
-      setSteps(latestWorkflow.steps);
-      setIsPlaybook(latestWorkflow.isPlaybook || false);
-      setPlaybookDescription(latestWorkflow.playbook_description || '');
-    } else {
-      // No existing workflows, set up default data
+  const loadLatestWorkflow = async () => {
+    try {
+      const response = await fetch('/api/workflows');
+      const result = await response.json();
+      
+      if (result.workflows && result.workflows.length > 0) {
+        // Load the most recent workflow (first in the array since they're ordered by createdAt desc)
+        const latestWorkflow = result.workflows[0];
+        setWorkflowId(latestWorkflow.id);
+        setWorkflowTitle(latestWorkflow.title);
+        setSteps(latestWorkflow.steps);
+        setIsPlaybook(latestWorkflow.isPlaybook || false);
+        setPlaybookDescription(latestWorkflow.playbook_description || '');
+        setPlaybookSection(latestWorkflow.playbookSection || ''); // NEW FIELD
+      } else {
+        // No existing workflows, set up default data
+        setDefaultWorkflow();
+      }
+    } catch (error) {
+      console.error('Error loading workflows:', error);
       setDefaultWorkflow();
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error('Error loading workflows:', error);
-    setDefaultWorkflow();
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
-const setDefaultWorkflow = () => {
-  setWorkflowTitle('After discovery calls');
-  setSteps([
-    {
-      id: Date.now(),
-      instruction: 'At 8pm, pull all the Gong recordings from the rep\'s discovery calls that day. Filter to only deals which have a next step set in Salesforce',
-      executor: 'ai'
-    }
-  ]);
-  setIsPlaybook(false);
-  setPlaybookDescription('');
-};
+  const setDefaultWorkflow = () => {
+    setWorkflowTitle('After discovery calls');
+    setSteps([
+      {
+        id: Date.now(),
+        instruction: 'At 8pm, pull all the Gong recordings from the rep\'s discovery calls that day. Filter to only deals which have a next step set in Salesforce',
+        executor: 'ai'
+      }
+    ]);
+    setIsPlaybook(false);
+    setPlaybookDescription('');
+    setPlaybookSection(''); // NEW FIELD
+  };
 
   const addStep = () => {
     const newStep = {
@@ -127,6 +139,12 @@ const setDefaultWorkflow = () => {
       return;
     }
 
+    // If it's a playbook, require a section to be selected
+    if (isPlaybook && !playbookSection) {
+      alert('Please select a section for this playbook');
+      return;
+    }
+
     setIsSaving(true);
     
     try {
@@ -134,7 +152,8 @@ const setDefaultWorkflow = () => {
         title: workflowTitle,
         steps: steps,
         isPlaybook: isPlaybook,
-        playbook_description: playbookDescription
+        playbook_description: playbookDescription,
+        playbookSection: isPlaybook ? playbookSection : null // NEW FIELD
       };
 
       let response;
@@ -234,6 +253,28 @@ const setDefaultWorkflow = () => {
               This is a playbook
             </label>
           </div>
+
+          {/* Playbook Section Selector (only show if isPlaybook is true) */}
+          {isPlaybook && (
+            <div className="mb-4">
+              <label htmlFor="playbookSection" className="block text-sm font-medium text-gray-700 mb-2">
+                Playbook Section
+              </label>
+              <select
+                id="playbookSection"
+                value={playbookSection}
+                onChange={(e) => setPlaybookSection(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="">Select a section...</option>
+                {playbookSections.map((section) => (
+                  <option key={section.id} value={section.id}>
+                    {section.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Playbook Description (only show if isPlaybook is true) */}
           {isPlaybook && (
@@ -364,6 +405,11 @@ const setDefaultWorkflow = () => {
           <div className="mt-4 text-center text-sm text-gray-500">
             Editing existing workflow (ID: {workflowId.slice(0, 8)}...)
             {isPlaybook && <span className="ml-2 text-blue-600">• Playbook</span>}
+            {isPlaybook && playbookSection && (
+              <span className="ml-2 text-green-600">
+                • {playbookSections.find(s => s.id === playbookSection)?.title}
+              </span>
+            )}
           </div>
         )}
       </div>
