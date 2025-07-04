@@ -241,9 +241,6 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                   <span>Back</span>
                 </button>
               )}
-              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                <Workflow className="w-5 h-5 text-white" />
-              </div>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">
                   {workflowId ? 'Edit Workflow' : 'Create Workflow'}
