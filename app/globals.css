@@ -117,7 +117,7 @@
 /* Delete button specific styling */
 .btn-delete {
   @apply btn-base btn-sm bg-red-50 text-red-600 hover:bg-red-100 focus:ring-red-500 rounded-md;
-  @apply px-3 py-2 text-xs font-medium;
+  @apply px-3 py-2 text-xs font-medium flex items-center space-x-1.5 min-w-fit;
 }
 
 /* Form Elements */
