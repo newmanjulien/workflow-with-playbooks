@@ -109,21 +109,6 @@
   }
 }
 
-/* Step Move Controls */
-@layer components {
-  .step-move-controls {
-    @apply flex flex-col space-y-1;
-  }
-  
-  .step-move-btn {
-    @apply p-1 rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1;
-  }
-  
-  .step-move-btn-disabled {
-    @apply opacity-30 cursor-not-allowed hover:bg-white hover:text-gray-600;
-  }
-}
-
 /* Form Elements */
 @layer components {
   .form-input {
