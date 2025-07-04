@@ -23,6 +23,7 @@ export async function saveWorkflow(workflowData) {
       isRunning: false,
       isPlaybook: workflowData.isPlaybook || false,
       playbook_description: workflowData.playbook_description || '',
+      playbookSection: workflowData.playbookSection || null, // NEW FIELD
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
@@ -86,6 +87,7 @@ export async function updateWorkflow(id, workflowData) {
       steps: workflowData.steps,
       isPlaybook: workflowData.isPlaybook || false,
       playbook_description: workflowData.playbook_description || '',
+      playbookSection: workflowData.playbookSection || null, // NEW FIELD
       updatedAt: serverTimestamp()
     });
     
