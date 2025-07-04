@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen, Workflow } from 'lucide-react';
+import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen, Workflow, ChevronDown, ChevronRight } from 'lucide-react';
 
 const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   const [workflows, setWorkflows] = useState([]);
@@ -10,6 +10,35 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   const [isDeleting, setIsDeleting] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const [activeSection, setActiveSection] = useState('workflows'); // 'workflows' or 'playbooks'
+  const [activePlaybookSection, setActivePlaybookSection] = useState('failing-to-close'); // Active playbook subsection
+
+  // Define playbook subsections
+  const playbookSections = [
+    {
+      id: 'failing-to-close',
+      title: 'Rep is failing to close deals',
+      count: 2,
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+    },
+    {
+      id: 'deals-drop-off',
+      title: 'Deals drop off in negotiation',
+      count: 1,
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+    },
+    {
+      id: 'not-moving-forward',
+      title: 'Rep is not moving deals forward in earlier stages',
+      count: 2,
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+    },
+    {
+      id: 'acv-off-whack',
+      title: 'ACV off whack?',
+      count: 1,
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+    }
+  ];
 
   useEffect(() => {
     loadWorkflows();
@@ -118,6 +147,22 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     if (humanSteps > 0) parts.push(`${humanSteps} human step${humanSteps > 1 ? 's' : ''}`);
     
     return parts.join(', ');
+  };
+
+  // Get playbooks for a specific subsection
+  const getPlaybooksForSection = (sectionId) => {
+    const playbooks = workflows.filter(workflow => workflow.isPlaybook === true);
+    
+    // For demo purposes, distribute playbooks across sections
+    // In a real app, you'd have a field that determines which section each playbook belongs to
+    const playbooksBySection = {
+      'failing-to-close': playbooks.filter((_, index) => index % 4 === 0),
+      'deals-drop-off': playbooks.filter((_, index) => index % 4 === 1),
+      'not-moving-forward': playbooks.filter((_, index) => index % 4 === 2),
+      'acv-off-whack': playbooks.filter((_, index) => index % 4 === 3)
+    };
+    
+    return playbooksBySection[sectionId] || [];
   };
 
   // Filter workflows based on active section
@@ -268,6 +313,54 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     </div>
   );
 
+  const renderPlaybookSection = (section) => {
+    const sectionPlaybooks = getPlaybooksForSection(section.id);
+    const isActive = activePlaybookSection === section.id;
+    
+    return (
+      <div key={section.id} className="border border-gray-200 rounded-lg bg-white">
+        {/* Section Header */}
+        <button
+          onClick={() => setActivePlaybookSection(isActive ? null : section.id)}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center space-x-3">
+            <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
+            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+              {section.count} playbook{section.count !== 1 ? 's' : ''}
+            </span>
+          </div>
+          {isActive ? (
+            <ChevronDown className="w-5 h-5 text-gray-500" />
+          ) : (
+            <ChevronRight className="w-5 h-5 text-gray-500" />
+          )}
+        </button>
+        
+        {/* Section Content */}
+        {isActive && (
+          <div className="px-6 pb-6 border-t border-gray-100">
+            {/* Section Description */}
+            <div className="py-4 text-sm text-gray-600 leading-relaxed">
+              {section.description}
+            </div>
+            
+            {/* Playbooks */}
+            <div className="space-y-4">
+              {sectionPlaybooks.length > 0 ? (
+                sectionPlaybooks.map((playbook) => renderWorkflowCard(playbook, true))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  No playbooks in this section yet
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderEmptyState = (sectionName) => (
     <div className="text-center py-12">
       <div className="text-gray-400 mb-4">
@@ -334,27 +427,33 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           </div>
         </div>
 
-        {/* Create New Workflow Button (only show in workflows section) */}
-        {activeSection === 'workflows' && (
-          <div className="mb-8">
-            <button
-              onClick={onCreateNew}
-              className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Create New Workflow</span>
-            </button>
-          </div>
-        )}
+        {/* Content based on active section */}
+        {activeSection === 'workflows' ? (
+          <>
+            {/* Create New Workflow Button */}
+            <div className="mb-8">
+              <button
+                onClick={onCreateNew}
+                className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Create New Workflow</span>
+              </button>
+            </div>
 
-        {/* Workflows/Playbooks List */}
-        {filteredWorkflows.length === 0 ? (
-          renderEmptyState(activeSection)
-        ) : (
-          <div className="grid gap-4">
-            {filteredWorkflows.map((workflow) => 
-              renderWorkflowCard(workflow, activeSection === 'playbooks')
+            {/* Workflows List */}
+            {filteredWorkflows.length === 0 ? (
+              renderEmptyState('workflows')
+            ) : (
+              <div className="grid gap-4">
+                {filteredWorkflows.map((workflow) => renderWorkflowCard(workflow, false))}
+              </div>
             )}
+          </>
+        ) : (
+          /* Playbooks Section with Subsections */
+          <div className="space-y-4">
+            {playbookSections.map((section) => renderPlaybookSection(section))}
           </div>
         )}
       </div>
