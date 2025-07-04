@@ -449,28 +449,6 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
             </div>
           </div>
         </div>
-
-        {/* Status Info */}
-        {workflowId && (
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-blue-800">
-                  <span className="font-medium">Status:</span> Editing existing workflow
-                </p>
-                <p className="text-xs text-blue-600 mt-1">
-                  ID: {workflowId.slice(0, 8)}...
-                  {isPlaybook && <span className="ml-2">• Playbook</span>}
-                  {isPlaybook && playbookSection && (
-                    <span className="ml-2">
-                      • {playbookSections.find(s => s.id === playbookSection)?.title}
-                    </span>
-                  )}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
