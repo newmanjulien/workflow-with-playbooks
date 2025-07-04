@@ -7,6 +7,8 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
   const [workflowId, setWorkflowId] = useState(initialWorkflowId);
   const [workflowTitle, setWorkflowTitle] = useState('');
   const [steps, setSteps] = useState([]);
+  const [isPlaybook, setIsPlaybook] = useState(false);
+  const [playbookDescription, setPlaybookDescription] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,6 +29,8 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
     if (result.workflow) {
       setWorkflowTitle(result.workflow.title);
       setSteps(result.workflow.steps);
+      setIsPlaybook(result.workflow.isPlaybook || false);
+      setPlaybookDescription(result.workflow.playbook_description || '');
     } else {
       console.error('Workflow not found');
       setDefaultWorkflow();
@@ -50,6 +54,8 @@ const loadLatestWorkflow = async () => {
       setWorkflowId(latestWorkflow.id);
       setWorkflowTitle(latestWorkflow.title);
       setSteps(latestWorkflow.steps);
+      setIsPlaybook(latestWorkflow.isPlaybook || false);
+      setPlaybookDescription(latestWorkflow.playbook_description || '');
     } else {
       // No existing workflows, set up default data
       setDefaultWorkflow();
@@ -71,6 +77,8 @@ const setDefaultWorkflow = () => {
       executor: 'ai'
     }
   ]);
+  setIsPlaybook(false);
+  setPlaybookDescription('');
 };
 
   const addStep = () => {
@@ -124,7 +132,9 @@ const setDefaultWorkflow = () => {
     try {
       const workflowData = {
         title: workflowTitle,
-        steps: steps
+        steps: steps,
+        isPlaybook: isPlaybook,
+        playbook_description: playbookDescription
       };
 
       let response;
@@ -175,8 +185,6 @@ const setDefaultWorkflow = () => {
     }
   };
 
-
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -207,6 +215,42 @@ const setDefaultWorkflow = () => {
             onChange={(e) => setWorkflowTitle(e.target.value)}
             className="text-3xl font-bold text-gray-900 bg-transparent border-none outline-none focus:bg-white focus:px-2 focus:py-1 focus:rounded transition-all cursor-text hover:bg-gray-100"
           />
+        </div>
+
+        {/* Playbook Settings */}
+        <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Settings</h3>
+          
+          {/* Playbook Toggle */}
+          <div className="flex items-center space-x-3 mb-4">
+            <input
+              type="checkbox"
+              id="isPlaybook"
+              checked={isPlaybook}
+              onChange={(e) => setIsPlaybook(e.target.checked)}
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+            />
+            <label htmlFor="isPlaybook" className="text-sm font-medium text-gray-700">
+              This is a playbook
+            </label>
+          </div>
+
+          {/* Playbook Description (only show if isPlaybook is true) */}
+          {isPlaybook && (
+            <div>
+              <label htmlFor="playbookDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                Playbook Description
+              </label>
+              <textarea
+                id="playbookDescription"
+                value={playbookDescription}
+                onChange={(e) => setPlaybookDescription(e.target.value)}
+                placeholder="Enter a description for this playbook..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              />
+            </div>
+          )}
         </div>
 
         {/* Workflow Steps */}
@@ -319,6 +363,7 @@ const setDefaultWorkflow = () => {
         {workflowId && (
           <div className="mt-4 text-center text-sm text-gray-500">
             Editing existing workflow (ID: {workflowId.slice(0, 8)}...)
+            {isPlaybook && <span className="ml-2 text-blue-600">• Playbook</span>}
           </div>
         )}
       </div>
