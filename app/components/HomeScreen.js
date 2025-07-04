@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen, Workflow, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen, Workflow, ChevronDown, ChevronRight, Clock, Zap } from 'lucide-react';
 
 const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   const [workflows, setWorkflows] = useState([]);
@@ -12,27 +12,35 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   const [activeSection, setActiveSection] = useState('workflows'); // 'workflows' or 'playbooks'
   const [activePlaybookSection, setActivePlaybookSection] = useState('failing-to-close'); // Active playbook subsection
 
-  // Define playbook subsections
+  // Define playbook subsections with enhanced styling
   const playbookSections = [
     {
       id: 'failing-to-close',
       title: 'Rep is failing to close deals',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+      description: 'Comprehensive playbooks designed to help sales reps overcome common obstacles in the deal closure process, including objection handling, pricing negotiations, and timing issues.',
+      icon: '🎯',
+      color: 'from-red-500 to-pink-500'
     },
     {
       id: 'deals-drop-off',
       title: 'Deals drop off in negotiation',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+      description: 'Strategic approaches to prevent deal abandonment during critical negotiation phases, with focus on maintaining momentum and addressing buyer concerns.',
+      icon: '⚡',
+      color: 'from-orange-500 to-red-500'
     },
     {
       id: 'not-moving-forward',
       title: 'Rep is not moving deals forward in earlier stages',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+      description: 'Tactical workflows to accelerate deal progression through discovery, qualification, and proposal stages with systematic follow-up strategies.',
+      icon: '🚀',
+      color: 'from-blue-500 to-purple-500'
     },
     {
       id: 'acv-off-whack',
-      title: 'ACV off whack?',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+      title: 'ACV optimization strategies',
+      description: 'Data-driven approaches to optimize Annual Contract Value through upselling, cross-selling, and strategic pricing adjustments.',
+      icon: '💰',
+      color: 'from-green-500 to-teal-500'
     }
   ];
 
@@ -170,137 +178,158 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   const renderWorkflowCard = (workflow, isPlaybook = false) => (
     <div
       key={workflow.id}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+      className="group relative bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden"
     >
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          {/* Workflow Title and Status */}
-          <div className="flex items-center space-x-3 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900 truncate">
-              {workflow.title}
-            </h3>
-            <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
-              workflow.isRunning 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-gray-100 text-gray-600'
-            }`}>
-              {workflow.isRunning ? (
-                <>
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>Running</span>
-                </>
-              ) : (
-                <>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  <span>Paused</span>
-                </>
-              )}
-            </div>
-          </div>
-          
-          {/* Steps Summary */}
-          <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
-            <div className="flex items-center space-x-1">
-              <span>{getStepsSummary(workflow.steps)}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Calendar className="w-4 h-4" />
-              <span>Updated {formatDate(workflow.updatedAt)}</span>
-            </div>
-          </div>
-
-          {/* First Step Preview */}
-          {workflow.steps && workflow.steps.length > 0 && (
-            <div className="text-sm text-gray-700 bg-gray-50 rounded-md p-3 mb-3">
-              <div className="flex items-start space-x-2">
-                {workflow.steps[0].executor === 'ai' ? (
-                  <Sparkles className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                ) : (
-                  <User className="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" />
-                )}
-                <span className="line-clamp-2">
-                  {workflow.steps[0].instruction}
-                </span>
+      {/* Animated gradient background on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      {/* Content */}
+      <div className="relative z-10">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            {/* Status Badge */}
+            <div className="flex items-center space-x-3 mb-3">
+              <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                workflow.isRunning 
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/20' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}>
+                <div className={`w-2 h-2 rounded-full ${workflow.isRunning ? 'bg-white animate-pulse' : 'bg-gray-400'}`} />
+                <span>{workflow.isRunning ? 'Active' : 'Paused'}</span>
               </div>
-              {workflow.steps.length > 1 && (
-                <div className="text-xs text-gray-500 mt-2">
-                  +{workflow.steps.length - 1} more step{workflow.steps.length > 2 ? 's' : ''}
+              {isPlaybook && (
+                <div className="inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                  <BookOpen className="w-3 h-3" />
+                  <span>Playbook</span>
                 </div>
               )}
             </div>
-          )}
-
-          {/* Playbook Description (only for playbooks) */}
-          {isPlaybook && workflow.playbook_description && (
-            <div className="text-sm text-gray-600 bg-blue-50 rounded-md p-3 mb-3">
-              <div className="flex items-start space-x-2">
-                <BookOpen className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                <span className="line-clamp-2">
-                  {workflow.playbook_description}
-                </span>
+            
+            {/* Workflow Title */}
+            <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+              {workflow.title}
+            </h3>
+            
+            {/* Steps Summary with Icons */}
+            <div className="flex items-center space-x-6 text-sm text-gray-600 mb-4">
+              <div className="flex items-center space-x-2">
+                <Workflow className="w-4 h-4 text-blue-500" />
+                <span>{getStepsSummary(workflow.steps)}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Clock className="w-4 h-4 text-gray-400" />
+                <span>Updated {formatDate(workflow.updatedAt)}</span>
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center space-x-2 ml-4">
-          {/* Run/Pause Button */}
-          <button
-            onClick={() => handleToggleWorkflowStatus(workflow.id, workflow.isRunning)}
-            disabled={updatingStatus === workflow.id}
-            className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors font-medium text-sm ${
-              updatingStatus === workflow.id
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : workflow.isRunning
-                ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
-                : 'bg-green-100 text-green-700 hover:bg-green-200'
-            }`}
-          >
-            {updatingStatus === workflow.id ? (
-              <>
-                <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
-                <span>Updating...</span>
-              </>
-            ) : workflow.isRunning ? (
-              <>
-                <Pause className="w-4 h-4" />
-                <span>Pause</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-4 h-4" />
-                <span>Run</span>
-              </>
+            {/* First Step Preview */}
+            {workflow.steps && workflow.steps.length > 0 && (
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 mb-4 border border-gray-200">
+                <div className="flex items-start space-x-3">
+                  <div className={`p-2 rounded-lg ${
+                    workflow.steps[0].executor === 'ai' 
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500' 
+                      : 'bg-gradient-to-r from-blue-500 to-purple-500'
+                  }`}>
+                    {workflow.steps[0].executor === 'ai' ? (
+                      <Sparkles className="w-4 h-4 text-white" />
+                    ) : (
+                      <User className="w-4 h-4 text-white" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900 mb-1">
+                      {workflow.steps[0].executor === 'ai' ? 'AI Step' : 'Human Step'}
+                    </p>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {workflow.steps[0].instruction}
+                    </p>
+                  </div>
+                </div>
+                {workflow.steps.length > 1 && (
+                  <div className="mt-3 text-xs text-gray-500 flex items-center space-x-1">
+                    <Plus className="w-3 h-3" />
+                    <span>{workflow.steps.length - 1} more step{workflow.steps.length > 2 ? 's' : ''}</span>
+                  </div>
+                )}
+              </div>
             )}
-          </button>
-          
-          {/* Edit Button */}
-          <button
-            onClick={() => onNavigateToWorkflow(workflow.id)}
-            className="flex items-center space-x-1 px-3 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
-          >
-            <span className="text-sm font-medium">Edit</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-          
-          {/* Delete Button (only for non-playbook workflows) */}
-          {!isPlaybook && (
+
+            {/* Playbook Description */}
+            {isPlaybook && workflow.playbook_description && (
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 mb-4 border border-blue-200">
+                <div className="flex items-start space-x-3">
+                  <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500">
+                    <BookOpen className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-blue-900 mb-1">Playbook Description</p>
+                    <p className="text-sm text-blue-700 leading-relaxed">
+                      {workflow.playbook_description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center space-x-2 ml-6">
+            {/* Run/Pause Button */}
             <button
-              onClick={() => handleDeleteWorkflow(workflow.id, workflow.title)}
-              disabled={isDeleting === workflow.id}
-              className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                isDeleting === workflow.id
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-red-600 hover:text-red-800 hover:bg-red-50'
+              onClick={() => handleToggleWorkflowStatus(workflow.id, workflow.isRunning)}
+              disabled={updatingStatus === workflow.id}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm shadow-sm ${
+                updatingStatus === workflow.id
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : workflow.isRunning
+                  ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/20'
+                  : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 shadow-lg shadow-green-500/20'
               }`}
             >
-              <Trash2 className="w-4 h-4" />
-              <span className="text-sm font-medium">
-                {isDeleting === workflow.id ? 'Deleting...' : 'Delete'}
-              </span>
+              {updatingStatus === workflow.id ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                  <span>Updating...</span>
+                </>
+              ) : workflow.isRunning ? (
+                <>
+                  <Pause className="w-4 h-4" />
+                  <span>Pause</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  <span>Run</span>
+                </>
+              )}
             </button>
-          )}
+            
+            {/* Edit Button */}
+            <button
+              onClick={() => onNavigateToWorkflow(workflow.id)}
+              className="flex items-center space-x-2 px-4 py-2 text-blue-600 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 rounded-xl transition-all duration-200 font-medium text-sm border border-blue-200 hover:border-transparent shadow-sm"
+            >
+              <span>Edit</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            
+            {/* Delete Button */}
+            {!isPlaybook && (
+              <button
+                onClick={() => handleDeleteWorkflow(workflow.id, workflow.title)}
+                disabled={isDeleting === workflow.id}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm border shadow-sm ${
+                  isDeleting === workflow.id
+                    ? 'text-gray-400 cursor-not-allowed border-gray-200'
+                    : 'text-red-600 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 border-red-200 hover:border-transparent'
+                }`}
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>{isDeleting === workflow.id ? 'Deleting...' : 'Delete'}</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -312,31 +341,45 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     const playbookCount = getPlaybookCountForSection(section.id);
     
     return (
-      <div key={section.id} className="border border-gray-200 rounded-lg bg-white">
+      <div key={section.id} className="border border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
         {/* Section Header */}
         <button
           onClick={() => setActivePlaybookSection(isActive ? null : section.id)}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+          className="w-full px-6 py-6 flex items-center justify-between hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 transition-all duration-200 group"
         >
-          <div className="flex items-center space-x-3">
-            <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
-            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-              {playbookCount} playbook{playbookCount !== 1 ? 's' : ''}
-            </span>
+          <div className="flex items-center space-x-4">
+            <div className={`p-3 rounded-xl bg-gradient-to-r ${section.color} text-white text-xl shadow-lg`}>
+              {section.icon}
+            </div>
+            <div className="text-left">
+              <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                {section.title}
+              </h3>
+              <div className="flex items-center space-x-2 mt-1">
+                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                  {playbookCount} playbook{playbookCount !== 1 ? 's' : ''}
+                </span>
+              </div>
+            </div>
           </div>
-          {isActive ? (
-            <ChevronDown className="w-5 h-5 text-gray-500" />
-          ) : (
-            <ChevronRight className="w-5 h-5 text-gray-500" />
-          )}
+          <div className="flex items-center space-x-2">
+            <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-blue-500' : 'bg-gray-300'} transition-colors`} />
+            {isActive ? (
+              <ChevronDown className="w-5 h-5 text-gray-500 group-hover:text-blue-500 transition-colors" />
+            ) : (
+              <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-blue-500 transition-colors" />
+            )}
+          </div>
         </button>
         
         {/* Section Content */}
         {isActive && (
-          <div className="px-6 pb-6 border-t border-gray-100">
+          <div className="px-6 pb-6 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-blue-50">
             {/* Section Description */}
-            <div className="py-4 text-sm text-gray-600 leading-relaxed">
-              {section.description}
+            <div className="py-4">
+              <p className="text-sm text-gray-700 leading-relaxed bg-white rounded-xl p-4 border border-gray-200">
+                {section.description}
+              </p>
             </div>
             
             {/* Playbooks */}
@@ -344,8 +387,11 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
               {sectionPlaybooks.length > 0 ? (
                 sectionPlaybooks.map((playbook) => renderWorkflowCard(playbook, true))
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  No playbooks in this section yet
+                <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                  <div className="text-gray-400 mb-4">
+                    <BookOpen className="w-12 h-12 mx-auto opacity-50" />
+                  </div>
+                  <p className="text-gray-500 text-sm">No playbooks in this section yet</p>
                 </div>
               )}
             </div>
@@ -356,21 +402,25 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   };
 
   const renderEmptyState = (sectionName) => (
-    <div className="text-center py-12">
-      <div className="text-gray-400 mb-4">
+    <div className="text-center py-16 bg-white rounded-2xl border border-gray-200 shadow-sm">
+      <div className="text-gray-400 mb-6">
         {sectionName === 'workflows' ? (
-          <Sparkles className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
+            <Sparkles className="w-10 h-10 text-white" />
+          </div>
         ) : (
-          <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl flex items-center justify-center">
+            <BookOpen className="w-10 h-10 text-white" />
+          </div>
         )}
       </div>
-      <h3 className="text-xl font-medium text-gray-900 mb-2">
-        {sectionName === 'workflows' ? 'No workflows yet' : 'No playbooks yet'}
+      <h3 className="text-2xl font-bold text-gray-900 mb-2">
+        {sectionName === 'workflows' ? 'Ready to automate?' : 'No playbooks yet'}
       </h3>
-      <p className="text-gray-600">
+      <p className="text-gray-600 text-lg">
         {sectionName === 'workflows' 
-          ? 'Get started by creating your first workflow' 
-          : 'This section is empty'
+          ? 'Create your first workflow and start automating your processes' 
+          : 'This section is waiting for your first playbook'
         }
       </p>
     </div>
@@ -378,60 +428,73 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading workflows...</div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <p className="text-gray-600 text-lg">Loading your workflows...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="max-w-6xl mx-auto px-8 py-8">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Workflow Builder</h1>
-            <p className="text-gray-600">Create and manage your automated workflows</p>
-          </div>
-          
-          {/* User Menu */}
-          <div className="flex items-center space-x-4">
-            <div className="text-sm text-gray-600">
-              Welcome, <span className="font-medium">Julien</span>
+        <div className="mb-12">
+          <div className="flex items-center space-x-4 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
+              <Zap className="w-6 h-6 text-white" />
             </div>
-            <button
-              onClick={onLogout}
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              Sign out
-            </button>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                Workflow Builder
+              </h1>
+              <p className="text-gray-600 text-lg mt-1">Create and manage your automated workflows</p>
+            </div>
           </div>
         </div>
 
         {/* Section Selector */}
-        <div className="mb-6">
-          <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1 w-fit">
+        <div className="mb-8">
+          <div className="flex items-center space-x-2 bg-white rounded-2xl p-2 w-fit shadow-sm border border-gray-200">
             <button
               onClick={() => setActiveSection('workflows')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-3 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 activeSection === 'workflows'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/20'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               <Workflow className="w-4 h-4" />
               <span>My Workflows</span>
+              <span className={`px-2 py-1 rounded-full text-xs ${
+                activeSection === 'workflows' 
+                  ? 'bg-white bg-opacity-20 text-white' 
+                  : 'bg-gray-200 text-gray-600'
+              }`}>
+                {filteredWorkflows.length}
+              </span>
             </button>
             <button
               onClick={() => setActiveSection('playbooks')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-3 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 activeSection === 'playbooks'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/20'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               <BookOpen className="w-4 h-4" />
               <span>Playbooks</span>
+              <span className={`px-2 py-1 rounded-full text-xs ${
+                activeSection === 'playbooks' 
+                  ? 'bg-white bg-opacity-20 text-white' 
+                  : 'bg-gray-200 text-gray-600'
+              }`}>
+                {workflows.filter(w => w.isPlaybook).length}
+              </span>
             </button>
           </div>
         </div>
@@ -443,7 +506,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
             <div className="mb-8">
               <button
                 onClick={onCreateNew}
-                className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200 font-medium text-lg shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105"
               >
                 <Plus className="w-5 h-5" />
                 <span>Create New Workflow</span>
@@ -454,14 +517,14 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
             {filteredWorkflows.length === 0 ? (
               renderEmptyState('workflows')
             ) : (
-              <div className="grid gap-4">
+              <div className="grid gap-6">
                 {filteredWorkflows.map((workflow) => renderWorkflowCard(workflow, false))}
               </div>
             )}
           </>
         ) : (
           /* Playbooks Section with Subsections */
-          <div className="space-y-4">
+          <div className="space-y-6">
             {playbookSections.map((section) => renderPlaybookSection(section))}
           </div>
         )}
