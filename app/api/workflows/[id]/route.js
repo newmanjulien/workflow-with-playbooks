@@ -1,3 +1,4 @@
+// app/api/workflows/[id]/route.js
 import { getWorkflow, updateWorkflow, deleteWorkflow } from '../../../lib/firestore';
 
 export async function GET(request, { params }) {
