@@ -150,29 +150,21 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   };
 
   // Get playbooks for a specific subsection
-  const getPlaybooksForSection = (sectionId) => {
+   const getPlaybooksForSection = (sectionId) => {
     const playbooks = workflows.filter(workflow => workflow.isPlaybook === true);
     
-    // For demo purposes, distribute playbooks across sections
-    // In a real app, you'd have a field that determines which section each playbook belongs to
-    const playbooksBySection = {
-      'failing-to-close': playbooks.filter((_, index) => index % 4 === 0),
-      'deals-drop-off': playbooks.filter((_, index) => index % 4 === 1),
-      'not-moving-forward': playbooks.filter((_, index) => index % 4 === 2),
-      'acv-off-whack': playbooks.filter((_, index) => index % 4 === 3)
-    };
-    
-    return playbooksBySection[sectionId] || [];
+    // Filter playbooks by their actual playbookSection field
+    return playbooks.filter(playbook => playbook.playbookSection === sectionId);
   };
-
-  // Filter workflows based on active section
-  const filteredWorkflows = workflows.filter(workflow => {
-    if (activeSection === 'playbooks') {
-      return workflow.isPlaybook === true;
-    } else {
-      return workflow.isPlaybook !== true; // Show non-playbook workflows (undefined or false)
-    }
-  });
+  
+    // Filter workflows based on active section
+    const filteredWorkflows = workflows.filter(workflow => {
+      if (activeSection === 'playbooks') {
+        return workflow.isPlaybook === true;
+      } else {
+        return workflow.isPlaybook !== true; // Show non-playbook workflows (undefined or false)
+      }
+    });
 
   const renderWorkflowCard = (workflow, isPlaybook = false) => (
     <div
