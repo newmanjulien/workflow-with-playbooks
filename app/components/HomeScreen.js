@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen, Workflow, ChevronDown, ChevronRight, Clock, Zap, MoreHorizontal } from 'lucide-react';
+import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen, Workflow, ChevronDown, ChevronRight, Clock, Zap, MoreHorizontal, Target, TrendingUp, Rocket, DollarSign } from 'lucide-react';
 
 const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   const [workflows, setWorkflows] = useState([]);
@@ -18,25 +18,25 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
       id: 'failing-to-close',
       title: 'Rep is failing to close deals',
       description: 'Comprehensive playbooks designed to help sales reps overcome common obstacles in the deal closure process, including objection handling, pricing negotiations, and timing issues.',
-      icon: '🎯',
+      icon: Target,
     },
     {
       id: 'deals-drop-off',
       title: 'Deals drop off in negotiation',
       description: 'Strategic approaches to prevent deal abandonment during critical negotiation phases, with focus on maintaining momentum and addressing buyer concerns.',
-      icon: '⚡',
+      icon: Zap,
     },
     {
       id: 'not-moving-forward',
       title: 'Rep is not moving deals forward in earlier stages',
       description: 'Tactical workflows to accelerate deal progression through discovery, qualification, and proposal stages with systematic follow-up strategies.',
-      icon: '🚀',
+      icon: Rocket,
     },
     {
       id: 'acv-off-whack',
       title: 'ACV optimization strategies',
       description: 'Data-driven approaches to optimize Annual Contract Value through upselling, cross-selling, and strategic pricing adjustments.',
-      icon: '💰',
+      icon: DollarSign,
     }
   ];
 
@@ -175,11 +175,6 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           <div className="flex-1">
             <div className="flex items-center space-x-2">
               <h3 className="font-medium text-gray-900">{workflow.title}</h3>
-              {isPlaybook && (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800">
-                  Playbook
-                </span>
-              )}
             </div>
             <div className="mt-1 text-sm text-gray-500">
               {workflow.steps && workflow.steps.length > 0 && workflow.steps[0].instruction}
@@ -267,6 +262,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     const sectionPlaybooks = getPlaybooksForSection(section.id);
     const isActive = activePlaybookSection === section.id;
     const playbookCount = getPlaybookCountForSection(section.id);
+    const IconComponent = section.icon;
     
     return (
       <div key={section.id} className="border border-gray-200 rounded-lg bg-white">
@@ -276,7 +272,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center space-x-3">
-            <span className="text-lg">{section.icon}</span>
+            <IconComponent className="w-5 h-5 text-gray-600" />
             <div className="text-left">
               <h3 className="font-medium text-gray-900">{section.title}</h3>
               <p className="text-sm text-gray-500 mt-1">{playbookCount} playbook{playbookCount !== 1 ? 's' : ''}</p>
