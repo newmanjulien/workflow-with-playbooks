@@ -165,54 +165,50 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   });
 
   const renderWorkflowRow = (workflow, isPlaybook = false) => (
-    <tr key={workflow.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-      <td className="px-6 py-4">
+    <tr key={workflow.id} className="table-row">
+      <td className="table-cell">
         <div className="flex items-center space-x-3">
           {/* Status Indicator */}
-          <div className={`w-2 h-2 rounded-full ${workflow.isRunning ? 'bg-green-500' : 'bg-gray-300'}`} />
+          <div className={workflow.isRunning ? 'status-dot-active' : 'status-dot-inactive'} />
           
           {/* Workflow Info */}
           <div className="flex-1">
             <div className="flex items-center space-x-2">
-              <h3 className="font-medium text-gray-900">{workflow.title}</h3>
+              <h3 className="heading-secondary">{workflow.title}</h3>
             </div>
-            <div className="mt-1 text-sm text-gray-500">
+            <div className="text-muted mt-1">
               {workflow.steps && workflow.steps.length > 0 && workflow.steps[0].instruction}
             </div>
           </div>
         </div>
       </td>
       
-      <td className="px-6 py-4 text-sm text-gray-500">
-        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-          workflow.isRunning 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-gray-100 text-gray-800'
-        }`}>
+      <td className="table-cell">
+        <span className={workflow.isRunning ? 'badge-active' : 'badge-inactive'}>
           {workflow.isRunning ? 'Active' : 'Paused'}
         </span>
       </td>
       
-      <td className="px-6 py-4 text-sm text-gray-500">
+      <td className="table-cell">
         {getStepsSummary(workflow.steps)}
       </td>
       
-      <td className="px-6 py-4 text-sm text-gray-500">
+      <td className="table-cell">
         {formatDate(workflow.updatedAt)}
       </td>
       
-      <td className="px-6 py-4 text-right">
-        <div className="flex items-center justify-end space-x-2">
+      <td className="table-cell-right">
+        <div className="flex items-center justify-end space-x-actions">
           {/* Run/Pause Button */}
           <button
             onClick={() => handleToggleWorkflowStatus(workflow.id, workflow.isRunning)}
             disabled={updatingStatus === workflow.id}
-            className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+            className={`btn-sm ${
               updatingStatus === workflow.id
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                ? 'btn-ghost cursor-not-allowed opacity-50'
                 : workflow.isRunning
-                ? 'bg-orange-100 text-orange-800 hover:bg-orange-200'
-                : 'bg-green-100 text-green-800 hover:bg-green-200'
+                ? 'btn-status-active'
+                : 'btn-status-inactive'
             }`}
           >
             {updatingStatus === workflow.id ? (
@@ -233,7 +229,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           {/* Edit Button */}
           <button
             onClick={() => onNavigateToWorkflow(workflow.id)}
-            className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+            className="btn-ghost btn-sm"
           >
             Edit
           </button>
@@ -243,9 +239,9 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
             <button
               onClick={() => handleDeleteWorkflow(workflow.id, workflow.title)}
               disabled={isDeleting === workflow.id}
-              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`btn-sm ${
                 isDeleting === workflow.id
-                  ? 'text-gray-400 cursor-not-allowed'
+                  ? 'btn-ghost cursor-not-allowed opacity-50'
                   : 'text-red-600 hover:bg-red-50'
               }`}
             >
@@ -265,17 +261,17 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     const IconComponent = section.icon;
     
     return (
-      <div key={section.id} className="border border-gray-200 rounded-lg bg-white">
+      <div key={section.id} className="card">
         {/* Section Header */}
         <button
           onClick={() => setActivePlaybookSection(isActive ? null : section.id)}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+          className="w-full px-6 py-4 flex-between hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center space-x-3">
             <IconComponent className="w-5 h-5 text-gray-600" />
             <div className="text-left">
-              <h3 className="font-medium text-gray-900">{section.title}</h3>
-              <p className="text-sm text-gray-500 mt-1">{playbookCount} playbook{playbookCount !== 1 ? 's' : ''}</p>
+              <h3 className="heading-secondary">{section.title}</h3>
+              <p className="text-muted mt-1">{playbookCount} playbook{playbookCount !== 1 ? 's' : ''}</p>
             </div>
           </div>
           {isActive ? (
@@ -290,41 +286,33 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           <div className="border-t border-gray-200">
             {/* Section Description */}
             <div className="px-6 py-4 bg-gray-50">
-              <p className="text-sm text-gray-600">{section.description}</p>
+              <p className="text-muted">{section.description}</p>
             </div>
             
             {/* Playbooks Table */}
             {sectionPlaybooks.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+              <div className="table-container">
+                <table className="table">
+                  <thead className="table-header">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Playbook
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Steps
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Updated
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
+                      <th className="table-header-cell">Playbook</th>
+                      <th className="table-header-cell">Status</th>
+                      <th className="table-header-cell">Steps</th>
+                      <th className="table-header-cell">Updated</th>
+                      <th className="table-header-cell-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="table-body">
                     {sectionPlaybooks.map((playbook) => renderWorkflowRow(playbook, true))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <div className="px-6 py-8 text-center">
-                <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-                <p className="text-sm text-gray-500">No playbooks in this section yet</p>
+              <div className="empty-state">
+                <div className="empty-state-icon">
+                  <BookOpen className="w-6 h-6 text-gray-400" />
+                </div>
+                <p className="text-muted">No playbooks in this section yet</p>
               </div>
             )}
           </div>
@@ -334,18 +322,18 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   };
 
   const renderEmptyState = (sectionName) => (
-    <div className="text-center py-12">
-      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+    <div className="empty-state">
+      <div className="empty-state-icon">
         {sectionName === 'workflows' ? (
           <Workflow className="w-6 h-6 text-gray-400" />
         ) : (
           <BookOpen className="w-6 h-6 text-gray-400" />
         )}
       </div>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
+      <h3 className="empty-state-title">
         {sectionName === 'workflows' ? 'No workflows yet' : 'No playbooks yet'}
       </h3>
-      <p className="text-gray-500 mb-6">
+      <p className="empty-state-description">
         {sectionName === 'workflows' 
           ? 'Get started by creating your first workflow' 
           : 'Start by creating your first playbook'
@@ -354,9 +342,9 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
       {sectionName === 'workflows' && (
         <button
           onClick={onCreateNew}
-          className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+          className="btn-primary btn-md btn-icon"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4" />
           Create workflow
         </button>
       )}
@@ -366,17 +354,17 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="flex items-center justify-center h-screen">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="relative">
-              <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
+        <div className="loading-container">
+          <div className="loading-content">
+            <div className="loading-icon-container">
+              <div className="loading-spinner"></div>
+              <div className="loading-icon">
                 <Workflow className="w-5 h-5 text-green-600" />
               </div>
             </div>
             <div className="text-center">
-              <p className="text-lg font-medium text-gray-900">Loading workflows...</p>
-              <p className="text-sm text-gray-500 mt-1">Please wait while we fetch your data</p>
+              <p className="loading-text-primary">Loading workflows...</p>
+              <p className="loading-text-secondary">Please wait while we fetch your data</p>
             </div>
           </div>
         </div>
@@ -387,21 +375,21 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <div className="page-header">
+        <div className="page-header-content">
+          <div className="page-header-inner">
             <div className="flex items-center space-x-4">
               <div>
-                <h1 className="text-xl font-semibold text-gray-900 text-center flex-1">Workflows</h1>
+                <h1 className="heading-primary text-center flex-1">Workflows</h1>
               </div>
             </div>
             
             {activeSection === 'workflows' && (
               <button
                 onClick={onCreateNew}
-                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                className="btn-primary btn-md btn-icon"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4" />
                 New workflow
               </button>
             )}
@@ -410,33 +398,29 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="section-container section-spacing">
         {/* Tab Navigation */}
-        <div className="border-b border-gray-200 mb-8">
-          <nav className="-mb-px flex space-x-8">
+        <div className="nav-tabs mb-8">
+          <nav className="nav-tabs-container">
             <button
               onClick={() => setActiveSection('workflows')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeSection === 'workflows'
-                  ? 'border-green-500 text-green-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              className={`nav-tab ${
+                activeSection === 'workflows' ? 'nav-tab-active' : 'nav-tab-inactive'
               }`}
             >
               Workflows
-              <span className="ml-2 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
+              <span className="badge-count">
                 {workflows.filter(w => !w.isPlaybook).length}
               </span>
             </button>
             <button
               onClick={() => setActiveSection('playbooks')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeSection === 'playbooks'
-                  ? 'border-green-500 text-green-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              className={`nav-tab ${
+                activeSection === 'playbooks' ? 'nav-tab-active' : 'nav-tab-inactive'
               }`}
             >
               Playbooks
-              <span className="ml-2 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
+              <span className="badge-count">
                 {workflows.filter(w => w.isPlaybook).length}
               </span>
             </button>
@@ -445,32 +429,22 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
 
         {/* Content */}
         {activeSection === 'workflows' ? (
-          <div className="bg-white rounded-lg border border-gray-200">
+          <div className="card">
             {filteredWorkflows.length === 0 ? (
               renderEmptyState('workflows')
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+              <div className="table-container">
+                <table className="table">
+                  <thead className="table-header">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Workflow
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Steps
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Updated
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
+                      <th className="table-header-cell">Workflow</th>
+                      <th className="table-header-cell">Status</th>
+                      <th className="table-header-cell">Steps</th>
+                      <th className="table-header-cell">Updated</th>
+                      <th className="table-header-cell-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="table-body">
                     {filteredWorkflows.map((workflow) => renderWorkflowRow(workflow, false))}
                   </tbody>
                 </table>
