@@ -86,26 +86,26 @@
     @apply btn-base bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500;
   }
   
-  /* Button Sizes */
+  /* Button Sizes - Fixed with whitespace-nowrap and min-w-0 */
   .btn-sm {
-    @apply px-3 py-1 text-sm;
+    @apply px-3 py-1 text-sm min-w-0 whitespace-nowrap;
   }
   
   .btn-md {
-    @apply px-4 py-2 text-sm;
+    @apply px-4 py-2 text-sm min-w-0 whitespace-nowrap;
   }
   
   .btn-lg {
-    @apply px-6 py-3 text-base;
+    @apply px-6 py-3 text-base min-w-0 whitespace-nowrap;
   }
   
-  /* Button with Icon */
+  /* Button with Icon - Fixed spacing */
   .btn-icon {
     @apply space-x-2;
   }
   
   .btn-icon-sm {
-    @apply space-x-1;
+    @apply space-x-1.5 flex-shrink-0;
   }
 }
 
