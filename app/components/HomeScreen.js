@@ -1,176 +1,189 @@
 // app/components/HomeScreen.js
-'use client'
+"use client"
 
-import React, { useState, useEffect } from 'react';
-import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen, Workflow, ChevronDown, ChevronRight, Clock, Zap, MoreHorizontal, Target, TrendingUp, Rocket, DollarSign } from 'lucide-react';
+import { useState, useEffect } from "react"
+import {
+  Plus,
+  Trash2,
+  Play,
+  Pause,
+  BookOpen,
+  Workflow,
+  ChevronDown,
+  ChevronRight,
+  Zap,
+  Target,
+  Rocket,
+  DollarSign,
+} from "lucide-react"
 
 const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
-  const [workflows, setWorkflows] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDeleting, setIsDeleting] = useState(null);
-  const [updatingStatus, setUpdatingStatus] = useState(null);
-  const [activeSection, setActiveSection] = useState('workflows');
-  const [activePlaybookSection, setActivePlaybookSection] = useState(null);
+  const [workflows, setWorkflows] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(null)
+  const [updatingStatus, setUpdatingStatus] = useState(null)
+  const [activeSection, setActiveSection] = useState("workflows")
+  const [activePlaybookSection, setActivePlaybookSection] = useState(null)
 
   // Define playbook subsections
   const playbookSections = [
     {
-      id: 'failing-to-close',
-      title: 'Rep is failing to close deals',
-      description: 'Comprehensive playbooks designed to help sales reps overcome common obstacles in the deal closure process, including objection handling, pricing negotiations, and timing issues.',
+      id: "failing-to-close",
+      title: "Rep is failing to close deals",
+      description:
+        "Comprehensive playbooks designed to help sales reps overcome common obstacles in the deal closure process, including objection handling, pricing negotiations, and timing issues.",
       icon: Target,
     },
     {
-      id: 'deals-drop-off',
-      title: 'Deals drop off in negotiation',
-      description: 'Strategic approaches to prevent deal abandonment during critical negotiation phases, with focus on maintaining momentum and addressing buyer concerns.',
+      id: "deals-drop-off",
+      title: "Deals drop off in negotiation",
+      description:
+        "Strategic approaches to prevent deal abandonment during critical negotiation phases, with focus on maintaining momentum and addressing buyer concerns.",
       icon: Zap,
     },
     {
-      id: 'not-moving-forward',
-      title: 'Rep is not moving deals forward in earlier stages',
-      description: 'Tactical workflows to accelerate deal progression through discovery, qualification, and proposal stages with systematic follow-up strategies.',
+      id: "not-moving-forward",
+      title: "Rep is not moving deals forward in earlier stages",
+      description:
+        "Tactical workflows to accelerate deal progression through discovery, qualification, and proposal stages with systematic follow-up strategies.",
       icon: Rocket,
     },
     {
-      id: 'acv-off-whack',
-      title: 'ACV optimization strategies',
-      description: 'Data-driven approaches to optimize Annual Contract Value through upselling, cross-selling, and strategic pricing adjustments.',
+      id: "acv-off-whack",
+      title: "ACV optimization strategies",
+      description:
+        "Data-driven approaches to optimize Annual Contract Value through upselling, cross-selling, and strategic pricing adjustments.",
       icon: DollarSign,
-    }
-  ];
+    },
+  ]
 
   useEffect(() => {
-    loadWorkflows();
-  }, []);
+    loadWorkflows()
+  }, [])
 
   const loadWorkflows = async () => {
     try {
-      const response = await fetch('/api/workflows');
-      const result = await response.json();
-      
+      const response = await fetch("/api/workflows")
+      const result = await response.json()
+
       if (result.workflows) {
-        setWorkflows(result.workflows);
+        setWorkflows(result.workflows)
       }
     } catch (error) {
-      console.error('Error loading workflows:', error);
+      console.error("Error loading workflows:", error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleDeleteWorkflow = async (workflowId, workflowTitle) => {
     if (!confirm(`Are you sure you want to delete "${workflowTitle}"? This action cannot be undone.`)) {
-      return;
+      return
     }
 
-    setIsDeleting(workflowId);
-    
+    setIsDeleting(workflowId)
+
     try {
       const response = await fetch(`/api/workflows/${workflowId}`, {
-        method: 'DELETE'
-      });
-      
-      const result = await response.json();
-      
+        method: "DELETE",
+      })
+
+      const result = await response.json()
+
       if (result.success) {
-        setWorkflows(workflows.filter(w => w.id !== workflowId));
+        setWorkflows(workflows.filter((w) => w.id !== workflowId))
       } else {
-        alert('Error deleting workflow: ' + result.error);
+        alert("Error deleting workflow: " + result.error)
       }
     } catch (error) {
-      console.error('Delete error:', error);
-      alert('Error deleting workflow: ' + error.message);
+      console.error("Delete error:", error)
+      alert("Error deleting workflow: " + error.message)
     } finally {
-      setIsDeleting(null);
+      setIsDeleting(null)
     }
-  };
+  }
 
   const handleToggleWorkflowStatus = async (workflowId, currentStatus) => {
-    setUpdatingStatus(workflowId);
-    
+    setUpdatingStatus(workflowId)
+
     try {
       const response = await fetch(`/api/workflows/${workflowId}/status`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          isRunning: !currentStatus
-        })
-      });
-      
-      const result = await response.json();
-      
+          isRunning: !currentStatus,
+        }),
+      })
+
+      const result = await response.json()
+
       if (result.success) {
-        setWorkflows(workflows.map(w => 
-          w.id === workflowId 
-            ? { ...w, isRunning: !currentStatus }
-            : w
-        ));
+        setWorkflows(workflows.map((w) => (w.id === workflowId ? { ...w, isRunning: !currentStatus } : w)))
       } else {
-        alert('Error updating workflow status: ' + result.error);
+        alert("Error updating workflow status: " + result.error)
       }
     } catch (error) {
-      console.error('Status update error:', error);
-      alert('Error updating workflow status: ' + error.message);
+      console.error("Status update error:", error)
+      alert("Error updating workflow status: " + error.message)
     } finally {
-      setUpdatingStatus(null);
+      setUpdatingStatus(null)
     }
-  };
+  }
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Unknown';
-    
+    if (!dateString) return "Unknown"
+
     try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
+      const date = new Date(dateString)
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
     } catch (error) {
-      return 'Unknown';
+      return "Unknown"
     }
-  };
+  }
 
   const getStepsSummary = (steps) => {
-    if (!steps || steps.length === 0) return 'No steps';
-    
-    const aiSteps = steps.filter(step => step.executor === 'ai').length;
-    const humanSteps = steps.filter(step => step.executor === 'human').length;
-    
-    const parts = [];
-    if (aiSteps > 0) parts.push(`${aiSteps} AI`);
-    if (humanSteps > 0) parts.push(`${humanSteps} Human`);
-    
-    return parts.join(', ');
-  };
+    if (!steps || steps.length === 0) return "No steps"
+
+    const aiSteps = steps.filter((step) => step.executor === "ai").length
+    const humanSteps = steps.filter((step) => step.executor === "human").length
+
+    const parts = []
+    if (aiSteps > 0) parts.push(`${aiSteps} AI`)
+    if (humanSteps > 0) parts.push(`${humanSteps} Human`)
+
+    return parts.join(", ")
+  }
 
   const getPlaybooksForSection = (sectionId) => {
-    const playbooks = workflows.filter(workflow => workflow.isPlaybook === true);
-    return playbooks.filter(playbook => playbook.playbookSection === sectionId);
-  };
+    const playbooks = workflows.filter((workflow) => workflow.isPlaybook === true)
+    return playbooks.filter((playbook) => playbook.playbookSection === sectionId)
+  }
 
   const getPlaybookCountForSection = (sectionId) => {
-    return getPlaybooksForSection(sectionId).length;
-  };
-  
-  const filteredWorkflows = workflows.filter(workflow => {
-    if (activeSection === 'playbooks') {
-      return workflow.isPlaybook === true;
+    return getPlaybooksForSection(sectionId).length
+  }
+
+  const filteredWorkflows = workflows.filter((workflow) => {
+    if (activeSection === "playbooks") {
+      return workflow.isPlaybook === true
     } else {
-      return workflow.isPlaybook !== true;
+      return workflow.isPlaybook !== true
     }
-  });
+  })
 
   const renderWorkflowRow = (workflow, isPlaybook = false) => (
     <tr key={workflow.id} className="table-row">
       <td className="table-cell">
         <div className="flex items-center space-x-3">
           {/* Status Indicator */}
-          <div className={workflow.isRunning ? 'status-dot-active' : 'status-dot-inactive'} />
-          
+          <div className={workflow.isRunning ? "status-dot-active" : "status-dot-inactive"} />
+
           {/* Workflow Info */}
           <div className="flex-1">
             <div className="flex items-center space-x-2">
@@ -182,21 +195,17 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           </div>
         </div>
       </td>
-      
+
       <td className="table-cell">
-        <span className={workflow.isRunning ? 'badge-active' : 'badge-inactive'}>
-          {workflow.isRunning ? 'Active' : 'Paused'}
+        <span className={workflow.isRunning ? "badge-active" : "badge-inactive"}>
+          {workflow.isRunning ? "Active" : "Paused"}
         </span>
       </td>
-      
-      <td className="table-cell">
-        {getStepsSummary(workflow.steps)}
-      </td>
-      
-      <td className="table-cell">
-        {formatDate(workflow.updatedAt)}
-      </td>
-      
+
+      <td className="table-cell">{getStepsSummary(workflow.steps)}</td>
+
+      <td className="table-cell">{formatDate(workflow.updatedAt)}</td>
+
       <td className="table-cell-right">
         <div className="flex items-center justify-end space-x-actions">
           {/* Run/Pause Button */}
@@ -205,14 +214,14 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
             disabled={updatingStatus === workflow.id}
             className={`btn-sm ${
               updatingStatus === workflow.id
-                ? 'btn-ghost cursor-not-allowed opacity-50'
+                ? "btn-ghost cursor-not-allowed opacity-50"
                 : workflow.isRunning
-                ? 'btn-status-active'
-                : 'btn-status-inactive'
+                  ? "btn-status-active"
+                  : "btn-status-inactive"
             }`}
           >
             {updatingStatus === workflow.id ? (
-              'Updating...'
+              "Updating..."
             ) : workflow.isRunning ? (
               <>
                 <Pause className="w-3 h-3 mr-1" />
@@ -225,41 +234,36 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
               </>
             )}
           </button>
-          
+
           {/* Edit Button */}
-          <button
-            onClick={() => onNavigateToWorkflow(workflow.id)}
-            className="btn-ghost btn-sm"
-          >
+          <button onClick={() => onNavigateToWorkflow(workflow.id)} className="btn-ghost btn-sm">
             Edit
           </button>
-          
+
           {/* Delete Button */}
           {!isPlaybook && (
             <button
               onClick={() => handleDeleteWorkflow(workflow.id, workflow.title)}
               disabled={isDeleting === workflow.id}
               className={`btn-sm ${
-                isDeleting === workflow.id
-                  ? 'btn-ghost cursor-not-allowed opacity-50'
-                  : 'text-red-600 hover:bg-red-50'
+                isDeleting === workflow.id ? "btn-ghost cursor-not-allowed opacity-50" : "text-red-600 hover:bg-red-50"
               }`}
             >
               <Trash2 className="w-3 h-3 mr-1" />
-              {isDeleting === workflow.id ? 'Deleting...' : 'Delete'}
+              {isDeleting === workflow.id ? "Deleting..." : "Delete"}
             </button>
           )}
         </div>
       </td>
     </tr>
-  );
+  )
 
   const renderPlaybookSection = (section) => {
-    const sectionPlaybooks = getPlaybooksForSection(section.id);
-    const isActive = activePlaybookSection === section.id;
-    const playbookCount = getPlaybookCountForSection(section.id);
-    const IconComponent = section.icon;
-    
+    const sectionPlaybooks = getPlaybooksForSection(section.id)
+    const isActive = activePlaybookSection === section.id
+    const playbookCount = getPlaybookCountForSection(section.id)
+    const IconComponent = section.icon
+
     return (
       <div key={section.id} className="card">
         {/* Section Header */}
@@ -271,7 +275,9 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
             <IconComponent className="w-5 h-5 text-gray-600" />
             <div className="text-left">
               <h3 className="heading-secondary">{section.title}</h3>
-              <p className="text-muted mt-1">{playbookCount} playbook{playbookCount !== 1 ? 's' : ''}</p>
+              <p className="text-muted mt-1">
+                {playbookCount} playbook{playbookCount !== 1 ? "s" : ""}
+              </p>
             </div>
           </div>
           {isActive ? (
@@ -280,7 +286,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
             <ChevronRight className="w-5 h-5 text-gray-400" />
           )}
         </button>
-        
+
         {/* Section Content */}
         {isActive && (
           <div className="border-t border-gray-200">
@@ -288,7 +294,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
             <div className="px-6 py-4 bg-gray-50">
               <p className="text-muted">{section.description}</p>
             </div>
-            
+
             {/* Playbooks Table */}
             {sectionPlaybooks.length > 0 ? (
               <div className="table-container">
@@ -318,38 +324,26 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           </div>
         )}
       </div>
-    );
-  };
+    )
+  }
 
   const renderEmptyState = (sectionName) => (
     <div className="empty-state">
       <div className="empty-state-icon">
-        {sectionName === 'workflows' ? (
+        {sectionName === "workflows" ? (
           <Workflow className="w-6 h-6 text-gray-400" />
         ) : (
           <BookOpen className="w-6 h-6 text-gray-400" />
         )}
       </div>
-      <h3 className="empty-state-title">
-        {sectionName === 'workflows' ? 'No workflows yet' : 'No playbooks yet'}
-      </h3>
+      <h3 className="empty-state-title">{sectionName === "workflows" ? "No workflows yet" : "No playbooks yet"}</h3>
       <p className="empty-state-description">
-        {sectionName === 'workflows' 
-          ? 'Get started by creating your first workflow' 
-          : 'Start by creating your first playbook'
-        }
+        {sectionName === "workflows"
+          ? "Your workflows will appear here when created"
+          : "Your playbooks will appear here when created"}
       </p>
-      {sectionName === 'workflows' && (
-        <button
-          onClick={onCreateNew}
-          className="btn-primary btn-md btn-icon"
-        >
-          <Plus className="w-4 h-4" />
-          Create workflow
-        </button>
-      )}
     </div>
-  );
+  )
 
   if (isLoading) {
     return (
@@ -369,7 +363,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -382,17 +376,13 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
               <div>
                 <h1 className="heading-primary text-center flex-1">Workflows</h1>
               </div>
+              {activeSection === "workflows" && (
+                <button onClick={onCreateNew} className="btn-primary btn-md btn-icon">
+                  <Plus className="w-4 h-4" />
+                  New workflow
+                </button>
+              )}
             </div>
-            
-            {activeSection === 'workflows' && (
-              <button
-                onClick={onCreateNew}
-                className="btn-primary btn-md btn-icon"
-              >
-                <Plus className="w-4 h-4" />
-                New workflow
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -403,35 +393,27 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
         <div className="nav-tabs mb-8">
           <nav className="nav-tabs-container">
             <button
-              onClick={() => setActiveSection('workflows')}
-              className={`nav-tab ${
-                activeSection === 'workflows' ? 'nav-tab-active' : 'nav-tab-inactive'
-              }`}
+              onClick={() => setActiveSection("workflows")}
+              className={`nav-tab ${activeSection === "workflows" ? "nav-tab-active" : "nav-tab-inactive"}`}
             >
               Workflows
-              <span className="badge-count">
-                {workflows.filter(w => !w.isPlaybook).length}
-              </span>
+              <span className="badge-count">{workflows.filter((w) => !w.isPlaybook).length}</span>
             </button>
             <button
-              onClick={() => setActiveSection('playbooks')}
-              className={`nav-tab ${
-                activeSection === 'playbooks' ? 'nav-tab-active' : 'nav-tab-inactive'
-              }`}
+              onClick={() => setActiveSection("playbooks")}
+              className={`nav-tab ${activeSection === "playbooks" ? "nav-tab-active" : "nav-tab-inactive"}`}
             >
               Playbooks
-              <span className="badge-count">
-                {workflows.filter(w => w.isPlaybook).length}
-              </span>
+              <span className="badge-count">{workflows.filter((w) => w.isPlaybook).length}</span>
             </button>
           </nav>
         </div>
 
         {/* Content */}
-        {activeSection === 'workflows' ? (
+        {activeSection === "workflows" ? (
           <div className="card">
             {filteredWorkflows.length === 0 ? (
-              renderEmptyState('workflows')
+              renderEmptyState("workflows")
             ) : (
               <div className="table-container">
                 <table className="table">
@@ -452,13 +434,11 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
             )}
           </div>
         ) : (
-          <div className="space-y-4">
-            {playbookSections.map((section) => renderPlaybookSection(section))}
-          </div>
+          <div className="space-y-4">{playbookSections.map((section) => renderPlaybookSection(section))}</div>
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HomeScreen;
+export default HomeScreen
