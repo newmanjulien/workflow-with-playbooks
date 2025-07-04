@@ -10,7 +10,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   const [isDeleting, setIsDeleting] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const [activeSection, setActiveSection] = useState('workflows');
-  const [activePlaybookSection, setActivePlaybookSection] = useState('failing-to-close');
+  const [activePlaybookSection, setActivePlaybookSection] = useState(null);
 
   // Define playbook subsections
   const playbookSections = [
