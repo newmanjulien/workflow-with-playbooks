@@ -244,7 +244,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
             <button
               onClick={saveWorkflow}
               disabled={isSaving}
-              className={`inline-flex items-center px-4 py-2 rounded-md font-medium transition-colors ${
+              className={`inline-flex items-center px-4 py-2 rounded-md transition-colors ${
                 isSaving 
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
                   : 'bg-green-600 text-white hover:bg-green-700'
@@ -269,7 +269,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
             value={workflowTitle}
             onChange={(e) => setWorkflowTitle(e.target.value)}
             placeholder="Enter workflow title..."
-            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
           />
         </div>
 
@@ -341,7 +341,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
               <h3 className="text-lg font-medium text-gray-900">Workflow Steps</h3>
               <button
                 onClick={addStep}
-                className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+                className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Add Step
