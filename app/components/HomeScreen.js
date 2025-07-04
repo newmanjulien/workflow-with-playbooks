@@ -2,10 +2,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen, Settings } from 'lucide-react';
+import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen } from 'lucide-react';
 
 const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
-  const [activeSection, setActiveSection] = useState('workflows');
+  const [activeTab, setActiveTab] = useState('workflows');
   const [workflows, setWorkflows] = useState([]);
   const [playbooks, setPlaybooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,6 +18,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
 
   const loadData = async () => {
     try {
+      // Load workflows and playbooks in parallel
       const [workflowsResponse, playbooksResponse] = await Promise.all([
         fetch('/api/workflows'),
         fetch('/api/playbooks')
@@ -29,7 +30,6 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
       if (workflowsResult.workflows) {
         setWorkflows(workflowsResult.workflows);
       }
-      
       if (playbooksResult.playbooks) {
         setPlaybooks(playbooksResult.playbooks);
       }
@@ -55,6 +55,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
       const result = await response.json();
       
       if (result.success) {
+        // Remove the workflow from the local state
         setWorkflows(workflows.filter(w => w.id !== workflowId));
       } else {
         alert('Error deleting workflow: ' + result.error);
@@ -67,12 +68,11 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     }
   };
 
-  const handleToggleStatus = async (itemId, currentStatus, isPlaybook = false) => {
-    setUpdatingStatus(itemId);
+  const handleToggleWorkflowStatus = async (workflowId, currentStatus) => {
+    setUpdatingStatus(workflowId);
     
     try {
-      const endpoint = isPlaybook ? `/api/playbooks/${itemId}/status` : `/api/workflows/${itemId}/status`;
-      const response = await fetch(endpoint, {
+      const response = await fetch(`/api/workflows/${workflowId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -85,25 +85,26 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
       const result = await response.json();
       
       if (result.success) {
-        if (isPlaybook) {
-          setPlaybooks(playbooks.map(p => 
-            p.id === itemId 
-              ? { ...p, isRunning: !currentStatus }
-              : p
-          ));
-        } else {
+        // Update the local state based on active tab
+        if (activeTab === 'workflows') {
           setWorkflows(workflows.map(w => 
-            w.id === itemId 
+            w.id === workflowId 
               ? { ...w, isRunning: !currentStatus }
               : w
           ));
+        } else {
+          setPlaybooks(playbooks.map(p => 
+            p.id === workflowId 
+              ? { ...p, isRunning: !currentStatus }
+              : p
+          ));
         }
       } else {
-        alert('Error updating status: ' + result.error);
+        alert('Error updating workflow status: ' + result.error);
       }
     } catch (error) {
       console.error('Status update error:', error);
-      alert('Error updating status: ' + error.message);
+      alert('Error updating workflow status: ' + error.message);
     } finally {
       setUpdatingStatus(null);
     }
@@ -137,24 +138,24 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     return parts.join(', ');
   };
 
-  const renderWorkflowCard = (item, isPlaybook = false) => (
+  const renderWorkflowCard = (workflow, isPlaybook = false) => (
     <div
-      key={item.id}
+      key={workflow.id}
       className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          {/* Title and Status */}
+          {/* Workflow Title and Status */}
           <div className="flex items-center space-x-3 mb-2">
             <h3 className="text-lg font-semibold text-gray-900 truncate">
-              {item.title}
+              {workflow.title}
             </h3>
             <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
-              item.isRunning 
+              workflow.isRunning 
                 ? 'bg-green-100 text-green-800' 
                 : 'bg-gray-100 text-gray-600'
             }`}>
-              {item.isRunning ? (
+              {workflow.isRunning ? (
                 <>
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span>Running</span>
@@ -171,39 +172,39 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           {/* Steps Summary */}
           <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
             <div className="flex items-center space-x-1">
-              <span>{getStepsSummary(item.steps)}</span>
+              <span>{getStepsSummary(workflow.steps)}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Calendar className="w-4 h-4" />
-              <span>Updated {formatDate(item.updatedAt)}</span>
+              <span>Updated {formatDate(workflow.updatedAt)}</span>
             </div>
           </div>
 
           {/* First Step Preview */}
-          {item.steps && item.steps.length > 0 && (
+          {workflow.steps && workflow.steps.length > 0 && (
             <div className="text-sm text-gray-700 bg-gray-50 rounded-md p-3 mb-3">
               <div className="flex items-start space-x-2">
-                {item.steps[0].executor === 'ai' ? (
+                {workflow.steps[0].executor === 'ai' ? (
                   <Sparkles className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
                 ) : (
                   <User className="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" />
                 )}
                 <span className="line-clamp-2">
-                  {item.steps[0].instruction}
+                  {workflow.steps[0].instruction}
                 </span>
               </div>
-              {item.steps.length > 1 && (
+              {workflow.steps.length > 1 && (
                 <div className="text-xs text-gray-500 mt-2">
-                  +{item.steps.length - 1} more step{item.steps.length > 2 ? 's' : ''}
+                  +{workflow.steps.length - 1} more step{workflow.steps.length > 2 ? 's' : ''}
                 </div>
               )}
             </div>
           )}
 
           {/* Playbook Description */}
-          {isPlaybook && item.playbook_description && (
-            <div className="text-sm text-gray-600 bg-blue-50 rounded-md p-3 border-l-4 border-blue-200">
-              <p>{item.playbook_description}</p>
+          {isPlaybook && workflow.playbook_description && (
+            <div className="text-sm text-gray-600 italic bg-blue-50 rounded-md p-3 border-l-4 border-blue-200">
+              {workflow.playbook_description}
             </div>
           )}
         </div>
@@ -212,22 +213,22 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
         <div className="flex items-center space-x-2 ml-4">
           {/* Run/Pause Button */}
           <button
-            onClick={() => handleToggleStatus(item.id, item.isRunning, isPlaybook)}
-            disabled={updatingStatus === item.id}
+            onClick={() => handleToggleWorkflowStatus(workflow.id, workflow.isRunning)}
+            disabled={updatingStatus === workflow.id}
             className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors font-medium text-sm ${
-              updatingStatus === item.id
+              updatingStatus === workflow.id
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : item.isRunning
+                : workflow.isRunning
                 ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
                 : 'bg-green-100 text-green-700 hover:bg-green-200'
             }`}
           >
-            {updatingStatus === item.id ? (
+            {updatingStatus === workflow.id ? (
               <>
                 <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
                 <span>Updating...</span>
               </>
-            ) : item.isRunning ? (
+            ) : workflow.isRunning ? (
               <>
                 <Pause className="w-4 h-4" />
                 <span>Pause</span>
@@ -242,27 +243,27 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           
           {/* Edit Button */}
           <button
-            onClick={() => onNavigateToWorkflow(item.id)}
+            onClick={() => onNavigateToWorkflow(workflow.id)}
             className="flex items-center space-x-1 px-3 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
           >
             <span className="text-sm font-medium">Edit</span>
             <ArrowRight className="w-4 h-4" />
           </button>
           
-          {/* Delete Button (only for workflows, not playbooks) */}
+          {/* Delete Button - Only show for regular workflows, not playbooks */}
           {!isPlaybook && (
             <button
-              onClick={() => handleDeleteWorkflow(item.id, item.title)}
-              disabled={isDeleting === item.id}
+              onClick={() => handleDeleteWorkflow(workflow.id, workflow.title)}
+              disabled={isDeleting === workflow.id}
               className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                isDeleting === item.id
+                isDeleting === workflow.id
                   ? 'text-gray-400 cursor-not-allowed'
                   : 'text-red-600 hover:text-red-800 hover:bg-red-50'
               }`}
             >
               <Trash2 className="w-4 h-4" />
               <span className="text-sm font-medium">
-                {isDeleting === item.id ? 'Deleting...' : 'Delete'}
+                {isDeleting === workflow.id ? 'Deleting...' : 'Delete'}
               </span>
             </button>
           )}
@@ -271,35 +272,36 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     </div>
   );
 
-  const renderEmptyState = (isPlaybook = false) => (
-    <div className="text-center py-12">
-      <div className="text-gray-400 mb-4">
-        {isPlaybook ? (
-          <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
-        ) : (
-          <Settings className="w-16 h-16 mx-auto mb-4 opacity-50" />
-        )}
-      </div>
-      <h3 className="text-xl font-medium text-gray-900 mb-2">
-        {isPlaybook ? 'No playbooks yet' : 'No workflows yet'}
-      </h3>
-      <p className="text-gray-600 mb-6">
-        {isPlaybook 
-          ? 'Playbooks are pre-built workflow templates that you can use as starting points.'
-          : 'Get started by creating your first workflow'
-        }
-      </p>
-      {!isPlaybook && (
-        <button
-          onClick={onCreateNew}
-          className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Create Workflow</span>
-        </button>
-      )}
-    </div>
-  );
+  const renderEmptyState = (type) => {
+    if (type === 'workflows') {
+      return (
+        <div className="text-center py-12">
+          <div className="text-gray-400 mb-4">
+            <Sparkles className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          </div>
+          <h3 className="text-xl font-medium text-gray-900 mb-2">No workflows yet</h3>
+          <p className="text-gray-600 mb-6">Get started by creating your first workflow</p>
+          <button
+            onClick={onCreateNew}
+            className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Workflow</span>
+          </button>
+        </div>
+      );
+    } else {
+      return (
+        <div className="text-center py-12">
+          <div className="text-gray-400 mb-4">
+            <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          </div>
+          <h3 className="text-xl font-medium text-gray-900 mb-2">No playbooks available</h3>
+          <p className="text-gray-600">Playbooks are pre-built workflow templates you can use as starting points</p>
+        </div>
+      );
+    }
+  };
 
   if (isLoading) {
     return (
@@ -309,8 +311,8 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     );
   }
 
-  const currentItems = activeSection === 'workflows' ? workflows : playbooks;
-  const isPlaybookSection = activeSection === 'playbooks';
+  const currentData = activeTab === 'workflows' ? workflows : playbooks;
+  const isPlaybookView = activeTab === 'playbooks';
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -321,42 +323,36 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           <p className="text-gray-600">Create and manage your automated workflows</p>
         </div>
 
-        {/* Section Selector */}
+        {/* Tab Selector */}
         <div className="mb-6">
           <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="flex space-x-8">
               <button
-                onClick={() => setActiveSection('workflows')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeSection === 'workflows'
+                onClick={() => setActiveTab('workflows')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'workflows'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <Settings className="w-4 h-4" />
-                  <span>My Workflows</span>
-                </div>
+                My Workflows
               </button>
               <button
-                onClick={() => setActiveSection('playbooks')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeSection === 'playbooks'
+                onClick={() => setActiveTab('playbooks')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'playbooks'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <BookOpen className="w-4 h-4" />
-                  <span>Playbooks</span>
-                </div>
+                Playbooks
               </button>
             </nav>
           </div>
         </div>
 
-        {/* Create New Workflow Button (only show in workflows section) */}
-        {activeSection === 'workflows' && (
+        {/* Create New Workflow Button - Only show for My Workflows */}
+        {activeTab === 'workflows' && (
           <div className="mb-8">
             <button
               onClick={onCreateNew}
@@ -369,11 +365,11 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
         )}
 
         {/* Content */}
-        {currentItems.length === 0 ? (
-          renderEmptyState(isPlaybookSection)
+        {currentData.length === 0 ? (
+          renderEmptyState(activeTab)
         ) : (
           <div className="grid gap-4">
-            {currentItems.map((item) => renderWorkflowCard(item, isPlaybookSection))}
+            {currentData.map((item) => renderWorkflowCard(item, isPlaybookView))}
           </div>
         )}
       </div>
