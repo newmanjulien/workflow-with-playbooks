@@ -205,15 +205,25 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mb-4"></div>
-          <p className="text-gray-600">Loading workflow...</p>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center h-screen">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Workflow className="w-5 h-5 text-green-600" />
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-lg font-medium text-gray-900">Loading workflow...</p>
+            <p className="text-sm text-gray-500 mt-1">Please wait while we fetch your data</p>
+          </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen bg-gray-50">
