@@ -392,7 +392,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Workflows</h1>
+                <h1 className="text-xl font-semibold text-gray-900 text-center flex-1">Workflows</h1>
               </div>
             </div>
             
