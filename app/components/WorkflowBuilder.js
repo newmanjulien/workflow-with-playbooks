@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Sparkles, User, ArrowLeft } from 'lucide-react';
+import { Plus, Sparkles, User, ArrowLeft, Workflow, Trash2 } from 'lucide-react';
 
 const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack }) => {
   const [workflowId, setWorkflowId] = useState(initialWorkflowId);
@@ -9,7 +9,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
   const [steps, setSteps] = useState([]);
   const [isPlaybook, setIsPlaybook] = useState(false);
   const [playbookDescription, setPlaybookDescription] = useState('');
-  const [playbookSection, setPlaybookSection] = useState(''); // NEW STATE
+  const [playbookSection, setPlaybookSection] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -40,7 +40,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
         setSteps(result.workflow.steps);
         setIsPlaybook(result.workflow.isPlaybook || false);
         setPlaybookDescription(result.workflow.playbook_description || '');
-        setPlaybookSection(result.workflow.playbookSection || ''); // NEW FIELD
+        setPlaybookSection(result.workflow.playbookSection || '');
       } else {
         console.error('Workflow not found');
         setDefaultWorkflow();
@@ -66,7 +66,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
         setSteps(latestWorkflow.steps);
         setIsPlaybook(latestWorkflow.isPlaybook || false);
         setPlaybookDescription(latestWorkflow.playbook_description || '');
-        setPlaybookSection(latestWorkflow.playbookSection || ''); // NEW FIELD
+        setPlaybookSection(latestWorkflow.playbookSection || '');
       } else {
         // No existing workflows, set up default data
         setDefaultWorkflow();
@@ -90,7 +90,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
     ]);
     setIsPlaybook(false);
     setPlaybookDescription('');
-    setPlaybookSection(''); // NEW FIELD
+    setPlaybookSection('');
   };
 
   const addStep = () => {
@@ -153,7 +153,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
         steps: steps,
         isPlaybook: isPlaybook,
         playbook_description: playbookDescription,
-        playbookSection: isPlaybook ? playbookSection : null // NEW FIELD
+        playbookSection: isPlaybook ? playbookSection : null
       };
 
       let response;
@@ -207,209 +207,261 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading workflow...</div>
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-600">Loading workflow...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-2xl mx-auto">
-        {/* Header with Back Button */}
-        <div className="mb-8">
-          {onNavigateBack && (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              {onNavigateBack && (
+                <button
+                  onClick={onNavigateBack}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  <span>Back</span>
+                </button>
+              )}
+              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                <Workflow className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  {workflowId ? 'Edit Workflow' : 'Create Workflow'}
+                </h1>
+              </div>
+            </div>
+            
             <button
-              onClick={onNavigateBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
+              onClick={saveWorkflow}
+              disabled={isSaving}
+              className={`inline-flex items-center px-4 py-2 rounded-md font-medium transition-colors ${
+                isSaving 
+                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                  : 'bg-green-600 text-white hover:bg-green-700'
+              }`}
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span>Back to Workflows</span>
+              {isSaving ? 'Saving...' : workflowId ? 'Update Workflow' : 'Save Workflow'}
             </button>
-          )}
-          
-          {/* Workflow Title */}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Workflow Title */}
+        <div className="mb-6">
+          <label htmlFor="workflowTitle" className="block text-sm font-medium text-gray-700 mb-2">
+            Workflow Title
+          </label>
           <input
+            id="workflowTitle"
             type="text"
             value={workflowTitle}
             onChange={(e) => setWorkflowTitle(e.target.value)}
-            className="text-3xl font-bold text-gray-900 bg-transparent border-none outline-none focus:bg-white focus:px-2 focus:py-1 focus:rounded transition-all cursor-text hover:bg-gray-100"
+            placeholder="Enter workflow title..."
+            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
           />
         </div>
 
-        {/* Playbook Settings */}
-        <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Settings</h3>
-          
-          {/* Playbook Toggle */}
-          <div className="flex items-center space-x-3 mb-4">
-            <input
-              type="checkbox"
-              id="isPlaybook"
-              checked={isPlaybook}
-              onChange={(e) => setIsPlaybook(e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-            />
-            <label htmlFor="isPlaybook" className="text-sm font-medium text-gray-700">
-              This is a playbook
-            </label>
+        {/* Settings Section */}
+        <div className="mb-8 bg-white rounded-lg border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">Settings</h3>
           </div>
-
-          {/* Playbook Section Selector (only show if isPlaybook is true) */}
-          {isPlaybook && (
-            <div className="mb-4">
-              <label htmlFor="playbookSection" className="block text-sm font-medium text-gray-700 mb-2">
-                Playbook Section
-              </label>
-              <select
-                id="playbookSection"
-                value={playbookSection}
-                onChange={(e) => setPlaybookSection(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              >
-                <option value="">Select a section...</option>
-                {playbookSections.map((section) => (
-                  <option key={section.id} value={section.id}>
-                    {section.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Playbook Description (only show if isPlaybook is true) */}
-          {isPlaybook && (
-            <div>
-              <label htmlFor="playbookDescription" className="block text-sm font-medium text-gray-700 mb-2">
-                Playbook Description
-              </label>
-              <textarea
-                id="playbookDescription"
-                value={playbookDescription}
-                onChange={(e) => setPlaybookDescription(e.target.value)}
-                placeholder="Enter a description for this playbook..."
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          <div className="px-6 py-4">
+            {/* Playbook Toggle */}
+            <div className="flex items-center space-x-3 mb-4">
+              <input
+                type="checkbox"
+                id="isPlaybook"
+                checked={isPlaybook}
+                onChange={(e) => setIsPlaybook(e.target.checked)}
+                className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
               />
+              <label htmlFor="isPlaybook" className="text-sm font-medium text-gray-700">
+                This is a playbook
+              </label>
             </div>
-          )}
+
+            {/* Playbook Section Selector */}
+            {isPlaybook && (
+              <div className="mb-4">
+                <label htmlFor="playbookSection" className="block text-sm font-medium text-gray-700 mb-2">
+                  Playbook Section
+                </label>
+                <select
+                  id="playbookSection"
+                  value={playbookSection}
+                  onChange={(e) => setPlaybookSection(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                >
+                  <option value="">Select a section...</option>
+                  {playbookSections.map((section) => (
+                    <option key={section.id} value={section.id}>
+                      {section.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Playbook Description */}
+            {isPlaybook && (
+              <div>
+                <label htmlFor="playbookDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                  Playbook Description
+                </label>
+                <textarea
+                  id="playbookDescription"
+                  value={playbookDescription}
+                  onChange={(e) => setPlaybookDescription(e.target.value)}
+                  placeholder="Enter a description for this playbook..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                />
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Workflow Steps */}
-        <div className="space-y-6">
-          {steps.map((step, index) => (
-            <div key={step.id} className="relative">
-              {/* Step Box */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                {/* Instruction Input */}
-                <textarea
-                  value={step.instruction}
-                  onChange={(e) => updateStep(step.id, 'instruction', e.target.value)}
-                  placeholder="Enter instructions in natural language..."
-                  className="w-full min-h-24 text-gray-700 bg-transparent border-none outline-none resize-none placeholder-gray-400"
-                />
+        {/* Steps Section */}
+        <div className="bg-white rounded-lg border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium text-gray-900">Workflow Steps</h3>
+              <button
+                onClick={addStep}
+                className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Step
+              </button>
+            </div>
+          </div>
+          
+          <div className="p-6">
+            <div className="space-y-6">
+              {steps.map((step, index) => (
+                <div key={step.id} className="relative">
+                  {/* Step Number */}
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0 w-8 h-8 bg-green-100 text-green-800 rounded-full flex items-center justify-center text-sm font-medium">
+                      {index + 1}
+                    </div>
+                    
+                    <div className="flex-1">
+                      {/* Step Content */}
+                      <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                        {/* Instruction Input */}
+                        <textarea
+                          value={step.instruction}
+                          onChange={(e) => updateStep(step.id, 'instruction', e.target.value)}
+                          placeholder="Enter step instructions..."
+                          className="w-full min-h-20 text-gray-700 bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                        />
 
-                {/* Executor Selector */}
-                <div className="mt-4 flex items-center space-x-2">
-                  <button
-                    onClick={() => updateStep(step.id, 'executor', 'ai')}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      step.executor === 'ai'
-                        ? 'bg-orange-100 text-orange-800 border border-orange-200'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    <span>AI agent</span>
-                  </button>
-                  
-                  <button
-                    onClick={() => updateStep(step.id, 'executor', 'human')}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      step.executor === 'human'
-                        ? 'bg-gray-800 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <User className="w-4 h-4" />
-                    <span>Human</span>
-                  </button>
-                </div>
+                        {/* Executor and Actions */}
+                        <div className="mt-4 flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-500">Executor:</span>
+                            <button
+                              onClick={() => updateStep(step.id, 'executor', 'ai')}
+                              className={`flex items-center space-x-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                                step.executor === 'ai'
+                                  ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                                  : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                              }`}
+                            >
+                              <Sparkles className="w-3 h-3" />
+                              <span>AI</span>
+                            </button>
+                            
+                            <button
+                              onClick={() => updateStep(step.id, 'executor', 'human')}
+                              className={`flex items-center space-x-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                                step.executor === 'human'
+                                  ? 'bg-gray-800 text-white'
+                                  : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                              }`}
+                            >
+                              <User className="w-3 h-3" />
+                              <span>Human</span>
+                            </button>
+                          </div>
 
-                {/* Human Assignment Selector (only show when executor is human) */}
-                {step.executor === 'human' && (
-                  <div className="mt-3">
-                    <select
-                      value={step.assignedHuman || 'Femi Ibrahim'}
-                      onChange={(e) => updateStep(step.id, 'assignedHuman', e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                    >
-                      <option value="Femi Ibrahim">Femi Ibrahim</option>
-                      <option value="Jason Mao">Jason Mao</option>
-                    </select>
-                    <div className="mt-1 text-xs text-gray-500 italic">
-                      {step.assignedHuman || 'Femi Ibrahim'} will handle this
+                          {/* Delete Button */}
+                          {steps.length > 1 && (
+                            <button
+                              onClick={() => deleteStep(step.id)}
+                              className="inline-flex items-center px-2 py-1 text-red-600 hover:bg-red-50 rounded-md transition-colors text-sm"
+                            >
+                              <Trash2 className="w-3 h-3 mr-1" />
+                              Delete
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Human Assignment */}
+                        {step.executor === 'human' && (
+                          <div className="mt-3">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Assign to:
+                            </label>
+                            <select
+                              value={step.assignedHuman || 'Femi Ibrahim'}
+                              onChange={(e) => updateStep(step.id, 'assignedHuman', e.target.value)}
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                            >
+                              <option value="Femi Ibrahim">Femi Ibrahim</option>
+                              <option value="Jason Mao">Jason Mao</option>
+                            </select>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                )}
 
-                {/* Delete Step Button (only show if more than 1 step) */}
-                {steps.length > 1 && (
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      onClick={() => deleteStep(step.id)}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium"
-                    >
-                      Delete Step
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Connector Line */}
-              {index < steps.length - 1 && (
-                <div className="flex justify-center py-4">
-                  <div className="w-px h-8 bg-red-300"></div>
+                  {/* Connector Line */}
+                  {index < steps.length - 1 && (
+                    <div className="flex justify-start ml-4 py-2">
+                      <div className="w-px h-6 bg-gray-300"></div>
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
-          ))}
-
-          {/* Add Step Button */}
-          <div className="flex justify-center pt-2">
-            <button
-              onClick={addStep}
-              className="flex items-center justify-center w-10 h-10 bg-white border-2 border-red-300 rounded-full hover:bg-red-50 hover:border-red-400 transition-colors group"
-            >
-              <Plus className="w-5 h-5 text-red-500 group-hover:text-red-600" />
-            </button>
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="mt-12 flex justify-center">
-          <button 
-            onClick={saveWorkflow}
-            disabled={isSaving}
-            className={`px-6 py-2 rounded-md transition-colors font-medium ${
-              isSaving 
-                ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
-          >
-            {isSaving ? 'Saving...' : workflowId ? 'Update Workflow' : 'Save Workflow'}
-          </button>
-        </div>
-
-        {/* Status indicator */}
+        {/* Status Info */}
         {workflowId && (
-          <div className="mt-4 text-center text-sm text-gray-500">
-            Editing existing workflow (ID: {workflowId.slice(0, 8)}...)
-            {isPlaybook && <span className="ml-2 text-blue-600">• Playbook</span>}
-            {isPlaybook && playbookSection && (
-              <span className="ml-2 text-green-600">
-                • {playbookSections.find(s => s.id === playbookSection)?.title}
-              </span>
-            )}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-blue-800">
+                  <span className="font-medium">Status:</span> Editing existing workflow
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  ID: {workflowId.slice(0, 8)}...
+                  {isPlaybook && <span className="ml-2">• Playbook</span>}
+                  {isPlaybook && playbookSection && (
+                    <span className="ml-2">
+                      • {playbookSections.find(s => s.id === playbookSection)?.title}
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
