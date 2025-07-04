@@ -17,25 +17,21 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     {
       id: 'failing-to-close',
       title: 'Rep is failing to close deals',
-      count: 2,
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
     },
     {
       id: 'deals-drop-off',
       title: 'Deals drop off in negotiation',
-      count: 1,
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
     },
     {
       id: 'not-moving-forward',
       title: 'Rep is not moving deals forward in earlier stages',
-      count: 2,
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
     },
     {
       id: 'acv-off-whack',
       title: 'ACV off whack?',
-      count: 1,
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
     }
   ];
@@ -149,22 +145,27 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
     return parts.join(', ');
   };
 
-  // Get playbooks for a specific subsection
-   const getPlaybooksForSection = (sectionId) => {
+  // Get playbooks for a specific subsection - NOW USES REAL DATA
+  const getPlaybooksForSection = (sectionId) => {
     const playbooks = workflows.filter(workflow => workflow.isPlaybook === true);
     
     // Filter playbooks by their actual playbookSection field
     return playbooks.filter(playbook => playbook.playbookSection === sectionId);
   };
+
+  // Get actual count of playbooks for each section
+  const getPlaybookCountForSection = (sectionId) => {
+    return getPlaybooksForSection(sectionId).length;
+  };
   
-    // Filter workflows based on active section
-    const filteredWorkflows = workflows.filter(workflow => {
-      if (activeSection === 'playbooks') {
-        return workflow.isPlaybook === true;
-      } else {
-        return workflow.isPlaybook !== true; // Show non-playbook workflows (undefined or false)
-      }
-    });
+  // Filter workflows based on active section
+  const filteredWorkflows = workflows.filter(workflow => {
+    if (activeSection === 'playbooks') {
+      return workflow.isPlaybook === true;
+    } else {
+      return workflow.isPlaybook !== true; // Show non-playbook workflows (undefined or false)
+    }
+  });
 
   const renderWorkflowCard = (workflow, isPlaybook = false) => (
     <div
@@ -308,6 +309,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   const renderPlaybookSection = (section) => {
     const sectionPlaybooks = getPlaybooksForSection(section.id);
     const isActive = activePlaybookSection === section.id;
+    const playbookCount = getPlaybookCountForSection(section.id);
     
     return (
       <div key={section.id} className="border border-gray-200 rounded-lg bg-white">
@@ -319,7 +321,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
           <div className="flex items-center space-x-3">
             <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
             <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-              {section.count} playbook{section.count !== 1 ? 's' : ''}
+              {playbookCount} playbook{playbookCount !== 1 ? 's' : ''}
             </span>
           </div>
           {isActive ? (
