@@ -205,44 +205,44 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
   };
 
   if (isLoading) {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex items-center justify-center h-screen">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="relative">
-            <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Workflow className="w-5 h-5 text-green-600" />
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="loading-container">
+          <div className="loading-content">
+            <div className="loading-icon-container">
+              <div className="loading-spinner"></div>
+              <div className="loading-icon">
+                <Workflow className="w-5 h-5 text-green-600" />
+              </div>
             </div>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-medium text-gray-900">Loading workflow...</p>
-            <p className="text-sm text-gray-500 mt-1">Please wait while we fetch your data</p>
+            <div className="text-center">
+              <p className="loading-text-primary">Loading workflow...</p>
+              <p className="loading-text-secondary">Please wait while we fetch your data</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <div className="page-header">
+        <div className="page-header-content">
+          <div className="page-header-inner">
             <div className="flex items-center space-x-4">
               {onNavigateBack && (
                 <button
                   onClick={onNavigateBack}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  className="nav-back-button"
                 >
                   <ArrowLeft className="w-5 h-5" />
                   <span>Back</span>
                 </button>
               )}
               <div>
-                <h1 className="text-xl font-semibold text-gray-900 text-center flex-1">
+                <h1 className="heading-primary text-center flex-1">
                   {workflowId ? 'Edit Workflow' : 'Create Workflow'}
                 </h1>
               </div>
@@ -251,11 +251,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
             <button
               onClick={saveWorkflow}
               disabled={isSaving}
-              className={`inline-flex items-center px-4 py-2 rounded-md transition-colors ${
-                isSaving 
-                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-                  : 'bg-green-600 text-white hover:bg-green-700'
-              }`}
+              className={`btn-primary btn-md ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {isSaving ? 'Saving...' : workflowId ? 'Update Workflow' : 'Save Workflow'}
             </button>
@@ -264,10 +260,10 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 section-spacing">
         {/* Workflow Title */}
         <div className="mb-6">
-          <label htmlFor="workflowTitle" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="workflowTitle" className="form-label">
             Workflow Title
           </label>
           <input
@@ -276,16 +272,16 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
             value={workflowTitle}
             onChange={(e) => setWorkflowTitle(e.target.value)}
             placeholder="Enter workflow title..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="form-input"
           />
         </div>
 
         {/* Settings Section */}
-        <div className="mb-8 bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Settings</h3>
+        <div className="mb-8 card">
+          <div className="card-header">
+            <h3 className="heading-secondary">Settings</h3>
           </div>
-          <div className="px-6 py-4">
+          <div className="card-body">
             {/* Playbook Toggle */}
             <div className="flex items-center space-x-3 mb-4">
               <input
@@ -293,9 +289,9 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                 id="isPlaybook"
                 checked={isPlaybook}
                 onChange={(e) => setIsPlaybook(e.target.checked)}
-                className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                className="form-checkbox"
               />
-              <label htmlFor="isPlaybook" className="text-sm font-medium text-gray-700">
+              <label htmlFor="isPlaybook" className="text-label">
                 This is a playbook
               </label>
             </div>
@@ -303,14 +299,14 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
             {/* Playbook Section Selector */}
             {isPlaybook && (
               <div className="mb-4">
-                <label htmlFor="playbookSection" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="playbookSection" className="form-label">
                   Playbook Section
                 </label>
                 <select
                   id="playbookSection"
                   value={playbookSection}
                   onChange={(e) => setPlaybookSection(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                  className="form-select"
                 >
                   <option value="">Select a section...</option>
                   {playbookSections.map((section) => (
@@ -325,7 +321,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
             {/* Playbook Description */}
             {isPlaybook && (
               <div>
-                <label htmlFor="playbookDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="playbookDescription" className="form-label">
                   Playbook Description
                 </label>
                 <textarea
@@ -334,7 +330,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                   onChange={(e) => setPlaybookDescription(e.target.value)}
                   placeholder="Enter a description for this playbook..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                  className="form-textarea"
                 />
               </div>
             )}
@@ -342,27 +338,27 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
         </div>
 
         {/* Steps Section */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">Workflow Steps</h3>
+        <div className="card">
+          <div className="card-header">
+            <div className="flex-between">
+              <h3 className="heading-secondary">Workflow Steps</h3>
               <button
                 onClick={addStep}
-                className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm"
+                className="btn-primary btn-sm btn-icon-sm"
               >
-                <Plus className="w-4 h-4 mr-1" />
-                Add Step
+                <Plus className="w-4 h-4" />
+                <span>Add Step</span>
               </button>
             </div>
           </div>
           
-          <div className="p-6">
+          <div className="card-body">
             <div className="space-y-6">
               {steps.map((step, index) => (
                 <div key={step.id} className="relative">
                   {/* Step Number */}
                   <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-green-100 text-green-800 rounded-full flex items-center justify-center text-sm font-medium">
+                    <div className="flex-shrink-0 w-8 h-8 bg-green-100 text-green-800 rounded-full flex-center text-sm font-medium">
                       {index + 1}
                     </div>
                     
@@ -374,19 +370,19 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                           value={step.instruction}
                           onChange={(e) => updateStep(step.id, 'instruction', e.target.value)}
                           placeholder="Enter step instructions..."
-                          className="w-full min-h-20 text-gray-700 bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                          className="form-textarea-lg"
                         />
 
                         {/* Executor and Actions */}
-                        <div className="mt-4 flex items-center justify-between">
+                        <div className="mt-4 flex-between">
                           <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-500">Executor:</span>
+                            <span className="text-muted">Executor:</span>
                             <button
                               onClick={() => updateStep(step.id, 'executor', 'ai')}
-                              className={`flex items-center space-x-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                              className={`btn-sm btn-icon-sm ${
                                 step.executor === 'ai'
-                                  ? 'bg-orange-100 text-orange-800 border border-orange-200'
-                                  : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                                  ? 'btn-status-active'
+                                  : 'btn-secondary'
                               }`}
                             >
                               <Sparkles className="w-3 h-3" />
@@ -395,10 +391,10 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                             
                             <button
                               onClick={() => updateStep(step.id, 'executor', 'human')}
-                              className={`flex items-center space-x-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                              className={`btn-sm btn-icon-sm ${
                                 step.executor === 'human'
                                   ? 'bg-gray-800 text-white'
-                                  : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                                  : 'btn-secondary'
                               }`}
                             >
                               <User className="w-3 h-3" />
@@ -410,10 +406,10 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                           {steps.length > 1 && (
                             <button
                               onClick={() => deleteStep(step.id)}
-                              className="inline-flex items-center px-2 py-1 text-red-600 hover:bg-red-50 rounded-md transition-colors text-sm"
+                              className="btn-sm btn-icon-sm text-red-600 hover:bg-red-50"
                             >
-                              <Trash2 className="w-3 h-3 mr-1" />
-                              Delete
+                              <Trash2 className="w-3 h-3" />
+                              <span>Delete</span>
                             </button>
                           )}
                         </div>
@@ -421,13 +417,13 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                         {/* Human Assignment */}
                         {step.executor === 'human' && (
                           <div className="mt-3">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="form-label-sm">
                               Assign to:
                             </label>
                             <select
                               value={step.assignedHuman || 'Femi Ibrahim'}
                               onChange={(e) => updateStep(step.id, 'assignedHuman', e.target.value)}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                              className="form-input-sm"
                             >
                               <option value="Femi Ibrahim">Femi Ibrahim</option>
                               <option value="Jason Mao">Jason Mao</option>
