@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen } from 'lucide-react';
+import { Plus, ArrowRight, Trash2, Calendar, Sparkles, User, Play, Pause, BookOpen, Workflow } from 'lucide-react';
 
 const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
   const [workflows, setWorkflows] = useState([]);
@@ -317,7 +317,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              <Sparkles className="w-4 h-4" />
+              <Workflow className="w-4 h-4" />
               <span>My Workflows</span>
             </button>
             <button
