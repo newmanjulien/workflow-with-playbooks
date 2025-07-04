@@ -9,6 +9,7 @@ import {
   deleteDoc, 
   orderBy, 
   query,
+  where,
   serverTimestamp 
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -21,6 +22,8 @@ export async function saveWorkflow(workflowData) {
       title: workflowData.title,
       steps: workflowData.steps,
       isRunning: false,
+      isPlaybook: workflowData.isPlaybook || false,
+      playbook_description: workflowData.playbook_description || '',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
@@ -34,7 +37,11 @@ export async function saveWorkflow(workflowData) {
 
 export async function getWorkflows() {
   try {
-    const q = query(collection(db, WORKFLOWS_COLLECTION), orderBy('createdAt', 'desc'));
+    const q = query(
+      collection(db, WORKFLOWS_COLLECTION), 
+      where('isPlaybook', '==', false),
+      orderBy('createdAt', 'desc')
+    );
     const querySnapshot = await getDocs(q);
     
     const workflows = [];
@@ -51,6 +58,33 @@ export async function getWorkflows() {
     return workflows;
   } catch (error) {
     console.error('Error getting workflows:', error);
+    return [];
+  }
+}
+
+export async function getPlaybooks() {
+  try {
+    const q = query(
+      collection(db, WORKFLOWS_COLLECTION), 
+      where('isPlaybook', '==', true),
+      orderBy('createdAt', 'desc')
+    );
+    const querySnapshot = await getDocs(q);
+    
+    const playbooks = [];
+    querySnapshot.forEach((doc) => {
+      playbooks.push({
+        id: doc.id,
+        ...doc.data(),
+        // Convert Firestore timestamps to ISO strings for JSON serialization
+        createdAt: doc.data().createdAt?.toDate().toISOString(),
+        updatedAt: doc.data().updatedAt?.toDate().toISOString()
+      });
+    });
+    
+    return playbooks;
+  } catch (error) {
+    console.error('Error getting playbooks:', error);
     return [];
   }
 }
@@ -79,11 +113,21 @@ export async function getWorkflow(id) {
 export async function updateWorkflow(id, workflowData) {
   try {
     const docRef = doc(db, WORKFLOWS_COLLECTION, id);
-    await updateDoc(docRef, {
+    const updateData = {
       title: workflowData.title,
       steps: workflowData.steps,
       updatedAt: serverTimestamp()
-    });
+    };
+    
+    // Only update these fields if they are provided
+    if (workflowData.hasOwnProperty('isPlaybook')) {
+      updateData.isPlaybook = workflowData.isPlaybook;
+    }
+    if (workflowData.hasOwnProperty('playbook_description')) {
+      updateData.playbook_description = workflowData.playbook_description;
+    }
+    
+    await updateDoc(docRef, updateData);
     
     return { success: true };
   } catch (error) {
