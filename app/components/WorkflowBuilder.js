@@ -242,7 +242,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                 </button>
               )}
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className="text-xl font-semibold text-gray-900 text-center flex-1">
                   {workflowId ? 'Edit Workflow' : 'Create Workflow'}
                 </h1>
               </div>
