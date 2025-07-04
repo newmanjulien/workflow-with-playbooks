@@ -15,9 +15,7 @@ import {
 import { db } from './firebase';
 
 const WORKFLOWS_COLLECTION = 'workflows';
-const PLAYBOOKS_COLLECTION = 'playbooks';
 
-// Existing workflow functions (updated to include new fields)
 export async function saveWorkflow(workflowData) {
   try {
     const docRef = await addDoc(collection(db, WORKFLOWS_COLLECTION), {
@@ -51,6 +49,7 @@ export async function getWorkflows() {
       workflows.push({
         id: doc.id,
         ...doc.data(),
+        // Convert Firestore timestamps to ISO strings for JSON serialization
         createdAt: doc.data().createdAt?.toDate().toISOString(),
         updatedAt: doc.data().updatedAt?.toDate().toISOString()
       });
@@ -63,7 +62,6 @@ export async function getWorkflows() {
   }
 }
 
-// New playbook functions
 export async function getPlaybooks() {
   try {
     const q = query(
@@ -78,6 +76,7 @@ export async function getPlaybooks() {
       playbooks.push({
         id: doc.id,
         ...doc.data(),
+        // Convert Firestore timestamps to ISO strings for JSON serialization
         createdAt: doc.data().createdAt?.toDate().toISOString(),
         updatedAt: doc.data().updatedAt?.toDate().toISOString()
       });
@@ -87,25 +86,6 @@ export async function getPlaybooks() {
   } catch (error) {
     console.error('Error getting playbooks:', error);
     return [];
-  }
-}
-
-export async function savePlaybook(playbookData) {
-  try {
-    const docRef = await addDoc(collection(db, WORKFLOWS_COLLECTION), {
-      title: playbookData.title,
-      steps: playbookData.steps,
-      isRunning: false,
-      isPlaybook: true,
-      playbook_description: playbookData.playbook_description || '',
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-    
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error('Error saving playbook:', error);
-    return { success: false, error: error.message };
   }
 }
 
@@ -133,12 +113,21 @@ export async function getWorkflow(id) {
 export async function updateWorkflow(id, workflowData) {
   try {
     const docRef = doc(db, WORKFLOWS_COLLECTION, id);
-    await updateDoc(docRef, {
+    const updateData = {
       title: workflowData.title,
       steps: workflowData.steps,
-      playbook_description: workflowData.playbook_description || '',
       updatedAt: serverTimestamp()
-    });
+    };
+    
+    // Only update these fields if they are provided
+    if (workflowData.hasOwnProperty('isPlaybook')) {
+      updateData.isPlaybook = workflowData.isPlaybook;
+    }
+    if (workflowData.hasOwnProperty('playbook_description')) {
+      updateData.playbook_description = workflowData.playbook_description;
+    }
+    
+    await updateDoc(docRef, updateData);
     
     return { success: true };
   } catch (error) {
