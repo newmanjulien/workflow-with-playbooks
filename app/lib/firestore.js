@@ -21,6 +21,8 @@ export async function saveWorkflow(workflowData) {
       title: workflowData.title,
       steps: workflowData.steps,
       isRunning: false,
+      isPlaybook: workflowData.isPlaybook || false,
+      playbook_description: workflowData.playbook_description || '',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
@@ -82,6 +84,8 @@ export async function updateWorkflow(id, workflowData) {
     await updateDoc(docRef, {
       title: workflowData.title,
       steps: workflowData.steps,
+      isPlaybook: workflowData.isPlaybook || false,
+      playbook_description: workflowData.playbook_description || '',
       updatedAt: serverTimestamp()
     });
     
