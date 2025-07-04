@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Sparkles, User, ArrowLeft, Workflow, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Sparkles, User, ArrowLeft, Workflow, Trash2 } from 'lucide-react';
 
 const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack }) => {
   const [workflowId, setWorkflowId] = useState(initialWorkflowId);
@@ -123,22 +123,6 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
   const deleteStep = (id) => {
     if (steps.length > 1) {
       setSteps(steps.filter(step => step.id !== id));
-    }
-  };
-
-  const moveStepUp = (index) => {
-    if (index > 0) {
-      const newSteps = [...steps];
-      [newSteps[index], newSteps[index - 1]] = [newSteps[index - 1], newSteps[index]];
-      setSteps(newSteps);
-    }
-  };
-
-  const moveStepDown = (index) => {
-    if (index < steps.length - 1) {
-      const newSteps = [...steps];
-      [newSteps[index], newSteps[index + 1]] = [newSteps[index + 1], newSteps[index]];
-      setSteps(newSteps);
     }
   };
 
@@ -372,32 +356,10 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
             <div className="space-y-6">
               {steps.map((step, index) => (
                 <div key={step.id} className="relative">
-                  {/* Step Number and Move Controls */}
+                  {/* Step Number */}
                   <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-green-100 text-green-800 rounded-full flex-center text-sm font-medium">
-                        {index + 1}
-                      </div>
-                      
-                      {/* Move Up/Down Controls */}
-                      <div className="step-move-controls">
-                        <button
-                          onClick={() => moveStepUp(index)}
-                          disabled={index === 0}
-                          className={`step-move-btn ${index === 0 ? 'step-move-btn-disabled' : ''}`}
-                          title="Move step up"
-                        >
-                          <ChevronUp className="w-3 h-3" />
-                        </button>
-                        <button
-                          onClick={() => moveStepDown(index)}
-                          disabled={index === steps.length - 1}
-                          className={`step-move-btn ${index === steps.length - 1 ? 'step-move-btn-disabled' : ''}`}
-                          title="Move step down"
-                        >
-                          <ChevronDown className="w-3 h-3" />
-                        </button>
-                      </div>
+                    <div className="flex-shrink-0 w-8 h-8 bg-green-100 text-green-800 rounded-full flex-center text-sm font-medium">
+                      {index + 1}
                     </div>
                     
                     <div className="flex-1">
