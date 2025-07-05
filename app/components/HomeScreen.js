@@ -372,13 +372,13 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
       <div className="page-header">
         <div className="page-header-content">
           <div className="page-header-inner">
-            <div className="flex items-center justify-between w-full">
+            <div className="relative flex items-center justify-between w-full">
               {/* Left side - Empty for balance */}
               <div className="flex items-center">{/* Empty space for visual balance */}</div>
 
-              {/* Center - Title */}
-              <div className="flex-1 flex justify-center">
-                <h1 className="heading-secondary">Workflows</h1>
+              {/* Center - Title (absolutely positioned) */}
+              <div className="absolute left-1/2 transform -translate-x-1/2">
+                <h1 className="heading-primary">Workflows</h1>
               </div>
 
               {/* Right side - New workflow button */}
