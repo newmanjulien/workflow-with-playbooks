@@ -40,7 +40,7 @@
 /* Typography */
 @layer components {
   .heading-primary {
-    @apply text-xl font-medium text-gray-900;
+    @apply text-xl font-semibold text-gray-900;
   }
 
   .heading-secondary {
