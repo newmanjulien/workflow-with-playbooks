@@ -372,18 +372,25 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
       <div className="page-header">
         <div className="page-header-content">
           <div className="page-header-inner">
-            <div className="flex items-center space-x-4">
-              <div>
-                <h1 className="heading-primary text-center flex-1">Workflows</h1>
+            <div className="flex items-center justify-between w-full">
+              {/* Left side - Empty for balance */}
+              <div className="flex items-center">{/* Empty space for visual balance */}</div>
+
+              {/* Center - Title */}
+              <div className="flex-1 flex justify-center">
+                <h1 className="heading-primary">Workflows</h1>
+              </div>
+
+              {/* Right side - New workflow button */}
+              <div className="flex items-center">
+                {activeSection === "workflows" && (
+                  <button onClick={onCreateNew} className="btn-primary btn-md btn-icon">
+                    <Plus className="w-4 h-4" />
+                    New workflow
+                  </button>
+                )}
               </div>
             </div>
-
-            {activeSection === "workflows" && (
-              <button onClick={onCreateNew} className="btn-primary btn-md btn-icon">
-                <Plus className="w-4 h-4" />
-                New workflow
-              </button>
-            )}
           </div>
         </div>
       </div>
