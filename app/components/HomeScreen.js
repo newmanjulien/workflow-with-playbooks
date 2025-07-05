@@ -376,13 +376,14 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
               <div>
                 <h1 className="heading-primary text-center flex-1">Workflows</h1>
               </div>
-              {activeSection === "workflows" && (
-                <button onClick={onCreateNew} className="btn-primary btn-md btn-icon">
-                  <Plus className="w-4 h-4" />
-                  New workflow
-                </button>
-              )}
             </div>
+
+            {activeSection === "workflows" && (
+              <button onClick={onCreateNew} className="btn-primary btn-md btn-icon">
+                <Plus className="w-4 h-4" />
+                New workflow
+              </button>
+            )}
           </div>
         </div>
       </div>
