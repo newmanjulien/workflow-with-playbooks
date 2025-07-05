@@ -378,7 +378,7 @@ const HomeScreen = ({ onNavigateToWorkflow, onCreateNew }) => {
 
               {/* Center - Title */}
               <div className="flex-1 flex justify-center">
-                <h1 className="heading-primary">Workflows</h1>
+                <h1 className="heading-secondary">Workflows</h1>
               </div>
 
               {/* Right side - New workflow button */}
