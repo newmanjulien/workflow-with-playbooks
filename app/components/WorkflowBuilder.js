@@ -247,7 +247,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
 
               {/* Center - Title */}
               <div className="flex-1 flex justify-center">
-                <h1 className="heading-primary">{workflowId ? "Edit Workflow" : "Create Workflow"}</h1>
+                <h1 className="heading-secondary">{workflowId ? "Edit Workflow" : "Create Workflow"}</h1>
               </div>
 
               {/* Right side - Save button */}
