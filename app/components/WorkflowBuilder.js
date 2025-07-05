@@ -1,208 +1,211 @@
-'use client'
+"use client"
 
-import React, { useState, useEffect } from 'react';
-import { Plus, Sparkles, User, ArrowLeft, Workflow, Trash2 } from 'lucide-react';
+import { useState, useEffect } from "react"
+import { Plus, Sparkles, User, ArrowLeft, Workflow, Trash2 } from "lucide-react"
 
 const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack }) => {
-  const [workflowId, setWorkflowId] = useState(initialWorkflowId);
-  const [workflowTitle, setWorkflowTitle] = useState('');
-  const [steps, setSteps] = useState([]);
-  const [isPlaybook, setIsPlaybook] = useState(false);
-  const [playbookDescription, setPlaybookDescription] = useState('');
-  const [playbookSection, setPlaybookSection] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [workflowId, setWorkflowId] = useState(initialWorkflowId)
+  const [workflowTitle, setWorkflowTitle] = useState("")
+  const [steps, setSteps] = useState([])
+  const [isPlaybook, setIsPlaybook] = useState(false)
+  const [playbookDescription, setPlaybookDescription] = useState("")
+  const [playbookSection, setPlaybookSection] = useState("")
+  const [isSaving, setIsSaving] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Define the same playbook sections as in HomeScreen
   const playbookSections = [
-    { id: 'failing-to-close', title: 'Rep is failing to close deals' },
-    { id: 'deals-drop-off', title: 'Deals drop off in negotiation' },
-    { id: 'not-moving-forward', title: 'Rep is not moving deals forward in earlier stages' },
-    { id: 'acv-off-whack', title: 'ACV off whack?' }
-  ];
+    { id: "failing-to-close", title: "Rep is failing to close deals" },
+    { id: "deals-drop-off", title: "Deals drop off in negotiation" },
+    { id: "not-moving-forward", title: "Rep is not moving deals forward in earlier stages" },
+    { id: "acv-off-whack", title: "ACV off whack?" },
+  ]
 
   // Load existing workflow data on component mount
   useEffect(() => {
     if (initialWorkflowId) {
-      loadSpecificWorkflow(initialWorkflowId);
+      loadSpecificWorkflow(initialWorkflowId)
     } else {
-      loadLatestWorkflow();
+      loadLatestWorkflow()
     }
-  }, [initialWorkflowId]);
+  }, [initialWorkflowId])
 
   const loadSpecificWorkflow = async (id) => {
     try {
-      const response = await fetch(`/api/workflows/${id}`);
-      const result = await response.json();
-      
+      const response = await fetch(`/api/workflows/${id}`)
+      const result = await response.json()
+
       if (result.workflow) {
-        setWorkflowTitle(result.workflow.title);
-        setSteps(result.workflow.steps);
-        setIsPlaybook(result.workflow.isPlaybook || false);
-        setPlaybookDescription(result.workflow.playbook_description || '');
-        setPlaybookSection(result.workflow.playbookSection || '');
+        setWorkflowTitle(result.workflow.title)
+        setSteps(result.workflow.steps)
+        setIsPlaybook(result.workflow.isPlaybook || false)
+        setPlaybookDescription(result.workflow.playbook_description || "")
+        setPlaybookSection(result.workflow.playbookSection || "")
       } else {
-        console.error('Workflow not found');
-        setDefaultWorkflow();
+        console.error("Workflow not found")
+        setDefaultWorkflow()
       }
     } catch (error) {
-      console.error('Error loading workflow:', error);
-      setDefaultWorkflow();
+      console.error("Error loading workflow:", error)
+      setDefaultWorkflow()
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const loadLatestWorkflow = async () => {
     try {
-      const response = await fetch('/api/workflows');
-      const result = await response.json();
-      
+      const response = await fetch("/api/workflows")
+      const result = await response.json()
+
       if (result.workflows && result.workflows.length > 0) {
         // Load the most recent workflow (first in the array since they're ordered by createdAt desc)
-        const latestWorkflow = result.workflows[0];
-        setWorkflowId(latestWorkflow.id);
-        setWorkflowTitle(latestWorkflow.title);
-        setSteps(latestWorkflow.steps);
-        setIsPlaybook(latestWorkflow.isPlaybook || false);
-        setPlaybookDescription(latestWorkflow.playbook_description || '');
-        setPlaybookSection(latestWorkflow.playbookSection || '');
+        const latestWorkflow = result.workflows[0]
+        setWorkflowId(latestWorkflow.id)
+        setWorkflowTitle(latestWorkflow.title)
+        setSteps(latestWorkflow.steps)
+        setIsPlaybook(latestWorkflow.isPlaybook || false)
+        setPlaybookDescription(latestWorkflow.playbook_description || "")
+        setPlaybookSection(latestWorkflow.playbookSection || "")
       } else {
         // No existing workflows, set up default data
-        setDefaultWorkflow();
+        setDefaultWorkflow()
       }
     } catch (error) {
-      console.error('Error loading workflows:', error);
-      setDefaultWorkflow();
+      console.error("Error loading workflows:", error)
+      setDefaultWorkflow()
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const setDefaultWorkflow = () => {
-    setWorkflowTitle('After discovery calls');
+    setWorkflowTitle("After discovery calls")
     setSteps([
       {
         id: Date.now(),
-        instruction: 'At 8pm, pull all the Gong recordings from the rep\'s discovery calls that day. Filter to only deals which have a next step set in Salesforce',
-        executor: 'ai'
-      }
-    ]);
-    setIsPlaybook(false);
-    setPlaybookDescription('');
-    setPlaybookSection('');
-  };
+        instruction:
+          "At 8pm, pull all the Gong recordings from the rep's discovery calls that day. Filter to only deals which have a next step set in Salesforce",
+        executor: "ai",
+      },
+    ])
+    setIsPlaybook(false)
+    setPlaybookDescription("")
+    setPlaybookSection("")
+  }
 
   const addStep = () => {
     const newStep = {
       id: Date.now(),
-      instruction: '',
-      executor: 'ai'
-    };
-    setSteps([...steps, newStep]);
-  };
+      instruction: "",
+      executor: "ai",
+    }
+    setSteps([...steps, newStep])
+  }
 
   const updateStep = (id, field, value) => {
-    setSteps(steps.map(step => {
-      if (step.id === id) {
-        const updatedStep = { ...step, [field]: value };
-        // If switching from human to AI, remove the assignedHuman field
-        if (field === 'executor' && value === 'ai') {
-          delete updatedStep.assignedHuman;
+    setSteps(
+      steps.map((step) => {
+        if (step.id === id) {
+          const updatedStep = { ...step, [field]: value }
+          // If switching from human to AI, remove the assignedHuman field
+          if (field === "executor" && value === "ai") {
+            delete updatedStep.assignedHuman
+          }
+          // If switching to human and no human is assigned, default to first option
+          if (field === "executor" && value === "human" && !step.assignedHuman) {
+            updatedStep.assignedHuman = "Femi Ibrahim"
+          }
+          return updatedStep
         }
-        // If switching to human and no human is assigned, default to first option
-        if (field === 'executor' && value === 'human' && !step.assignedHuman) {
-          updatedStep.assignedHuman = 'Femi Ibrahim';
-        }
-        return updatedStep;
-      }
-      return step;
-    }));
-  };
+        return step
+      }),
+    )
+  }
 
   const deleteStep = (id) => {
     if (steps.length > 1) {
-      setSteps(steps.filter(step => step.id !== id));
+      setSteps(steps.filter((step) => step.id !== id))
     }
-  };
+  }
 
   const saveWorkflow = async () => {
     // Basic validation
     if (!workflowTitle.trim()) {
-      alert('Please enter a workflow title');
-      return;
+      alert("Please enter a workflow title")
+      return
     }
 
-    const hasEmptySteps = steps.some(step => !step.instruction.trim());
+    const hasEmptySteps = steps.some((step) => !step.instruction.trim())
     if (hasEmptySteps) {
-      alert('Please fill in all step instructions');
-      return;
+      alert("Please fill in all step instructions")
+      return
     }
 
     // If it's a playbook, require a section to be selected
     if (isPlaybook && !playbookSection) {
-      alert('Please select a section for this playbook');
-      return;
+      alert("Please select a section for this playbook")
+      return
     }
 
-    setIsSaving(true);
-    
+    setIsSaving(true)
+
     try {
       const workflowData = {
         title: workflowTitle,
         steps: steps,
         isPlaybook: isPlaybook,
         playbook_description: playbookDescription,
-        playbookSection: isPlaybook ? playbookSection : null
-      };
+        playbookSection: isPlaybook ? playbookSection : null,
+      }
 
-      let response;
-      
+      let response
+
       if (workflowId) {
         // Update existing workflow
         response = await fetch(`/api/workflows/${workflowId}`, {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(workflowData)
-        });
+          body: JSON.stringify(workflowData),
+        })
       } else {
         // Create new workflow
-        response = await fetch('/api/workflows', {
-          method: 'POST',
+        response = await fetch("/api/workflows", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(workflowData)
-        });
+          body: JSON.stringify(workflowData),
+        })
       }
-      
-      const result = await response.json();
-      
+
+      const result = await response.json()
+
       if (result.success) {
         // If this was a new workflow, store the ID for future updates
         if (!workflowId && result.id) {
-          setWorkflowId(result.id);
+          setWorkflowId(result.id)
         }
-        alert('Workflow saved successfully!');
-        
+        alert("Workflow saved successfully!")
+
         // If we have a navigation callback and this is a new workflow, navigate back
         if (onNavigateBack && !initialWorkflowId) {
           setTimeout(() => {
-            onNavigateBack();
-          }, 1000);
+            onNavigateBack()
+          }, 1000)
         }
       } else {
-        alert('Error saving workflow: ' + result.error);
+        alert("Error saving workflow: " + result.error)
       }
     } catch (error) {
-      console.error('Save error:', error);
-      alert('Error saving workflow: ' + error.message);
+      console.error("Save error:", error)
+      alert("Error saving workflow: " + error.message)
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  };
+  }
 
   if (isLoading) {
     return (
@@ -222,7 +225,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -231,30 +234,33 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
       <div className="page-header">
         <div className="page-header-content">
           <div className="page-header-inner">
-            <div className="flex items-center space-x-4">
-              {onNavigateBack && (
+            <div className="flex items-center justify-between w-full">
+              {/* Left side - Back button */}
+              <div className="flex items-center">
+                {onNavigateBack && (
+                  <button onClick={onNavigateBack} className="nav-back-button">
+                    <ArrowLeft className="w-5 h-5" />
+                    <span>Back</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Center - Title */}
+              <div className="flex-1 flex justify-center">
+                <h1 className="heading-primary">{workflowId ? "Edit Workflow" : "Create Workflow"}</h1>
+              </div>
+
+              {/* Right side - Save button */}
+              <div className="flex items-center">
                 <button
-                  onClick={onNavigateBack}
-                  className="nav-back-button"
+                  onClick={saveWorkflow}
+                  disabled={isSaving}
+                  className={`btn-primary btn-md ${isSaving ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
-                  <ArrowLeft className="w-5 h-5" />
-                  <span>Back</span>
+                  {isSaving ? "Saving..." : workflowId ? "Update Workflow" : "Save Workflow"}
                 </button>
-              )}
-              <div>
-                <h1 className="heading-primary text-center flex-1">
-                  {workflowId ? 'Edit Workflow' : 'Create Workflow'}
-                </h1>
               </div>
             </div>
-            
-            <button
-              onClick={saveWorkflow}
-              disabled={isSaving}
-              className={`btn-primary btn-md ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              {isSaving ? 'Saving...' : workflowId ? 'Update Workflow' : 'Save Workflow'}
-            </button>
           </div>
         </div>
       </div>
@@ -342,16 +348,13 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
           <div className="card-header">
             <div className="flex-between">
               <h3 className="heading-secondary">Workflow Steps</h3>
-              <button
-                onClick={addStep}
-                className="btn-primary btn-sm btn-icon-sm"
-              >
+              <button onClick={addStep} className="btn-primary btn-sm btn-icon-sm">
                 <Plus className="w-4 h-4" />
                 <span>Add Step</span>
               </button>
             </div>
           </div>
-          
+
           <div className="card-body">
             <div className="space-y-6">
               {steps.map((step, index) => (
@@ -361,14 +364,14 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                     <div className="flex-shrink-0 w-8 h-8 bg-green-100 text-green-800 rounded-full flex-center text-sm font-medium">
                       {index + 1}
                     </div>
-                    
+
                     <div className="flex-1">
                       {/* Step Content */}
                       <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
                         {/* Instruction Input */}
                         <textarea
                           value={step.instruction}
-                          onChange={(e) => updateStep(step.id, 'instruction', e.target.value)}
+                          onChange={(e) => updateStep(step.id, "instruction", e.target.value)}
                           placeholder="Enter step instructions..."
                           className="form-textarea-lg"
                         />
@@ -378,23 +381,19 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                           <div className="flex items-center space-x-2">
                             <span className="text-muted">Executor:</span>
                             <button
-                              onClick={() => updateStep(step.id, 'executor', 'ai')}
+                              onClick={() => updateStep(step.id, "executor", "ai")}
                               className={`btn-sm btn-icon-sm ${
-                                step.executor === 'ai'
-                                  ? 'btn-status-active'
-                                  : 'btn-secondary'
+                                step.executor === "ai" ? "btn-status-active" : "btn-secondary"
                               }`}
                             >
                               <Sparkles className="w-3 h-3" />
                               <span>AI</span>
                             </button>
-                            
+
                             <button
-                              onClick={() => updateStep(step.id, 'executor', 'human')}
+                              onClick={() => updateStep(step.id, "executor", "human")}
                               className={`btn-sm btn-icon-sm ${
-                                step.executor === 'human'
-                                  ? 'bg-gray-800 text-white'
-                                  : 'btn-secondary'
+                                step.executor === "human" ? "bg-gray-800 text-white" : "btn-secondary"
                               }`}
                             >
                               <User className="w-3 h-3" />
@@ -415,14 +414,12 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
                         </div>
 
                         {/* Human Assignment */}
-                        {step.executor === 'human' && (
+                        {step.executor === "human" && (
                           <div className="mt-3">
-                            <label className="form-label-sm">
-                              Assign to:
-                            </label>
+                            <label className="form-label-sm">Assign to:</label>
                             <select
-                              value={step.assignedHuman || 'Femi Ibrahim'}
-                              onChange={(e) => updateStep(step.id, 'assignedHuman', e.target.value)}
+                              value={step.assignedHuman || "Femi Ibrahim"}
+                              onChange={(e) => updateStep(step.id, "assignedHuman", e.target.value)}
                               className="form-input-sm"
                             >
                               <option value="Femi Ibrahim">Femi Ibrahim</option>
@@ -447,7 +444,7 @@ const WorkflowBuilder = ({ workflowId: initialWorkflowId = null, onNavigateBack 
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default WorkflowBuilder;
+export default WorkflowBuilder
